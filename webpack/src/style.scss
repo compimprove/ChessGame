@@ -1,0 +1,54 @@
+﻿$square-size: 55px;
+$square-border-size: 1px;
+
+.board{
+    min-width: 8 * $square-size;
+    min-height: 8 * $square-size;
+}
+
+button.square {
+    padding: 0;
+    margin-left: -1px;
+    width: $square-size;
+    height: $square-size;
+    outline: none;
+    border: $square-border-size solid black;
+
+    &:focus {
+        outline: none;
+        background-color: lightskyblue;
+    }
+
+    > img {
+        width: $square-size - $square-border-size * 2;
+        height: $square-size - $square-border-size * 2;
+        vertical-align: unset;
+    }
+}
+
+button.white {
+    background-color: white;
+}
+
+button.black {
+    background-color: tan;
+}
+
+button.lightblue {
+    background-color: lightskyblue;
+}
+
+button.orange {
+    background-color: #F96714;
+}
+
+button.kingDangered {
+    background-color: darkred;
+}
+
+
+
+.row-square {
+    list-style: none;
+    margin-bottom: -6px;
+}
