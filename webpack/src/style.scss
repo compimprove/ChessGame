@@ -46,7 +46,19 @@ button.kingDangered {
     background-color: darkred;
 }
 
-
+.cell-board {
+    border: 1px solid tan;
+    width: 100px;
+    height: 100px;
+    >button {
+        visibility:hidden;
+    }
+    &:hover {
+        >button {
+            visibility:visible;
+        }
+    }
+}
 
 .row-square {
     list-style: none;
