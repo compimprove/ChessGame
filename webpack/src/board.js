@@ -138,6 +138,7 @@ class Board extends Component {
     }
 
     async handleMove(coord) {
+        if (this.props.playingMode == false) return;
         function findCoord(coordResult) {
             return (coordResult.row == coord.row && coordResult.col == coord.col);
         }

@@ -6,6 +6,12 @@ $square-border-size: 1px;
     min-height: 8 * $square-size;
 }
 
+.side-inboard {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
 button.square {
     padding: 0;
     margin-left: -1px;

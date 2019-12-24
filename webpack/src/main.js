@@ -9,11 +9,12 @@ class Main extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            userBoardId: '',
+            userBoard: '',
             userName: '',
             userColor: 'white',
             boards: '',
             mode: 'outBoard',
+            playing: false,
             connection: null,
         }
         this.handleNameChange = this.handleNameChange.bind(this);
@@ -29,19 +30,43 @@ class Main extends Component {
                 connection.invoke("GetBoards");
             })
             .catch(err => console.log('Error while establishing connection :( '));
+
         connection.on("GetBoards", boards => {
-            console.log(boards);
             this.setState({ boards });
+            if (this.state.mode == "inBoard") {
+                let userBoard = boards.find((element) => {
+                    return (element.id === this.state.userBoard.id)
+                })
+                let playing = false;
+                if (userBoard.user1Name && userBoard.user2Name) {
+                    playing = true;
+                }
+                this.setState({ userBoard: userBoard, playing: playing });
+            }
         })
-        connection.on("JoinedBoard", (boardId) => {
-            this.setState({ mode: "inBoard", userBoardId: boardId })
+
+        connection.on("GetBoard", board => {
+            console.log(board);
+            this.setState({ userBoard: board });
         })
-        connection.onclose(() => {
-            connection.invoke("Disconnect", this.state.userBoardId);
+        connection.on("JoinedBoard", (board) => {
+            this.setState({ mode: "inBoard", userBoard: board })
         })
+
         this.setState({ connection })
+        this.setupBeforeUnloadListener();
     }
-    
+
+    setupInBoardHandle() {
+        let connection = this.state.connection;
+    }
+
+    setupBeforeUnloadListener() {
+        window.addEventListener("beforeunload", (ev) => {
+            this.state.connection.invoke("Disconnect", this.state.userBoard.id);
+        });
+    };
+
     handleNameChange(e) {
         this.setState({
             userName: e.target.value.toUpperCase(),
@@ -86,22 +111,46 @@ class Main extends Component {
                             <button className="btn btn-primary btn-lg" onClick={this.handleCreateBoard}>New Board</button> Or
                         </div>
                         {this.state.boards &&
-                            this.state.boards.map(value => (
-                                <div className="col-2">
-                                    <div className="cell-board">
-                                        <button className="btn btn-danger" onClick={this.handleJoinBoard.bind(this, value.id)}>Join</button>
+                            this.state.boards.map(value => {
+                                // Have one player on board
+                                if ((value.user1Name && !value.user2Name)
+                                    || (!value.user1Name && value.user2Name))
+                                    return (
+                                        <div className="col-2">
+                                            <div className="cell-board">
+                                                <button className="btn btn-danger" onClick={this.handleJoinBoard.bind(this, value.id)}>Join</button>
+                                            </div>
+                                            <label>{value.user1Name}</label>
+                                        </div>)
+                                else return (
+                                    <div className="col-2">
+                                        <div className="cell-board">
+                                            <strong>Playing</strong>
+                                        </div>
+                                        <label>{value.user1Name} vs {value.user2Name}
+                                        </label>
                                     </div>
-                                    <label>{value.user1Name}</label>
-                                </div>
-                            ))}
+                                )
+                            })}
                     </div>
                 </>
             )
         }
         else if (this.state.mode == 'inBoard') {
             return (
-                <div>
-                    <Board userColor={this.state.userColor} />
+                <div className="row">
+                    <div className="col-2 side-inboard">
+                        {this.state.userBoard.user1Name == this.state.userName
+                            && <h4>{this.state.userBoard.user2Name}</h4>}
+                        {this.state.userBoard.user2Name == this.state.userName
+                            && <h4>{this.state.userBoard.user1Name}</h4>}
+                        <h4>{this.state.userName}</h4>
+                    </div>
+                    <div className="col-10">
+                        <Board
+                            userColor={this.state.userColor}
+                            playingMode={this.state.playing} />
+                    </div>
                 </div>
             )
         }

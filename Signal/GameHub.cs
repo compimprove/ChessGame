@@ -25,17 +25,21 @@ namespace ChessGame.Signal
             if (boardId != null)
             {
                 Board board = await _context.boards.FindAsync(boardId);
-                board.User2Name = userName;
-                board.User2Identifier = Context.ConnectionId;
+                if (board.haveOnePlayer())
+                    board.addPlayer(userName, Context.ConnectionId);
                 try
                 {
                     _context.Update(board);
                     await _context.SaveChangesAsync();
+                    await Clients.Caller.SendAsync("JoinedBoard", board);
+
+                    List<Board> boards = await _context.boards.ToListAsync();
+                    await Clients.All.SendAsync("GetBoards", boards);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
                 }
-                await Clients.Caller.SendAsync("JoinedBoard", board.Id);
+
             }
         }
         public async Task CreateBoard(string userName)
@@ -45,11 +49,14 @@ namespace ChessGame.Signal
             board.User1Identifier = Context.ConnectionId;
             _context.Add(board);
             await _context.SaveChangesAsync();
-            await Clients.Caller.SendAsync("JoinedBoard", board.Id);
+            await Clients.Caller.SendAsync("JoinedBoard", board);
+            List<Board> boards = await _context.boards.ToListAsync();
+            await Clients.All.SendAsync("GetBoards", boards);
         }
 
-        public async Task Disconnect(long? boardId)
+        public async Task Disconnect(long boardId)
         {
+            Console.WriteLine("One Client closed");
             if (boardId != null)
             {
                 Board board = await _context.boards.FindAsync(boardId);
@@ -64,9 +71,8 @@ namespace ChessGame.Signal
                         board.User1Identifier = null;
                         board.User1Name = null;
                         _context.Update(board);
+                        
                     }
-                    
-                    await _context.SaveChangesAsync();
                 }
                 else if (board.User2Identifier == Context.ConnectionId)
                 {
@@ -79,9 +85,12 @@ namespace ChessGame.Signal
                         board.User2Identifier = null;
                         board.User2Name = null;
                         _context.Update(board);
+                        
                     }
-                    await _context.SaveChangesAsync();
                 }
+                await _context.SaveChangesAsync();
+                List<Board> boards = await _context.boards.ToListAsync();
+                await Clients.All.SendAsync("GetBoards", boards);
             }
         }
         public async Task GetBoards()
@@ -89,5 +98,18 @@ namespace ChessGame.Signal
             List<Board> boards = await _context.boards.ToListAsync();
             await Clients.Caller.SendAsync("GetBoards", boards);
         }
+
+        public async Task GetBoard(long boardId)
+        {
+            Board board = await _context.boards.FindAsync(boardId);
+            await Clients.Caller.SendAsync("GetBoard", board);
+        }
+
+        #region When player join the board
+        public async Task JoinedBoard()
+        {
+
+        }
+        #endregion
     }
 }
