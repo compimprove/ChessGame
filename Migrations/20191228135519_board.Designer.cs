@@ -3,14 +3,16 @@ using ChessGame.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace ChessGame.Migrations
 {
     [DbContext(typeof(SqlServerDbContext))]
-    partial class SqlServerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20191228135519_board")]
+    partial class board
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,7 +27,7 @@ namespace ChessGame.Migrations
                         .HasColumnType("bigint")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("User1Color")
+                    b.Property<int>("User1Color")
                         .HasColumnType("int");
 
                     b.Property<string>("User1Identifier")
@@ -34,7 +36,7 @@ namespace ChessGame.Migrations
                     b.Property<string>("User1Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("User2Color")
+                    b.Property<int>("User2Color")
                         .HasColumnType("int");
 
                     b.Property<string>("User2Identifier")

@@ -5,17 +5,18 @@ using ChessGame.Data;
 using ChessGame.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Linq;
+using ChessGame.Models.Chess;
+using ChessGame.Models.Chess.piece;
 
 namespace ChessGame.Signal
 {
     public class GameHub : Hub
     {
 
-        public const int MaxBoards = 10;
-        private SqlServerDbContext _context;
+        public const int MaxBoards = 100;
+        private InMemoryDbContext _context;
 
-        public GameHub(SqlServerDbContext context)
+        public GameHub(InMemoryDbContext context)
         {
             this._context = context;
         }
@@ -31,7 +32,8 @@ namespace ChessGame.Signal
                 {
                     _context.Update(board);
                     await _context.SaveChangesAsync();
-                    await Clients.Caller.SendAsync("JoinedBoard", board);
+                    bool userTurn = false;
+                    await Clients.Caller.SendAsync("JoinedBoard", board, userTurn);
 
                     List<Board> boards = await _context.boards.ToListAsync();
                     await Clients.All.SendAsync("GetBoards", boards);
@@ -44,14 +46,25 @@ namespace ChessGame.Signal
         }
         public async Task CreateBoard(string userName)
         {
-            Board board = new Board();
-            board.User1Name = userName;
-            board.User1Identifier = Context.ConnectionId;
-            _context.Add(board);
-            await _context.SaveChangesAsync();
-            await Clients.Caller.SendAsync("JoinedBoard", board);
-            List<Board> boards = await _context.boards.ToListAsync();
-            await Clients.All.SendAsync("GetBoards", boards);
+            int length = await _context.boards.CountAsync();
+            if (length > MaxBoards)
+            {
+                return;
+            }
+            else
+            {
+                Board board = new Board();
+                board.User1Name = userName;
+                board.User1Identifier = Context.ConnectionId;
+                board.User1Color = Color.White;
+                bool userTurn = true;
+    
+                _context.Add(board);
+                await _context.SaveChangesAsync();
+                await Clients.Caller.SendAsync("JoinedBoard", board, userTurn);
+                List<Board> boards = await _context.boards.ToListAsync();
+                await Clients.All.SendAsync("GetBoards", boards);
+            }
         }
 
         public async Task Disconnect(long boardId)
@@ -71,7 +84,7 @@ namespace ChessGame.Signal
                         board.User1Identifier = null;
                         board.User1Name = null;
                         _context.Update(board);
-                        
+
                     }
                 }
                 else if (board.User2Identifier == Context.ConnectionId)
@@ -85,7 +98,6 @@ namespace ChessGame.Signal
                         board.User2Identifier = null;
                         board.User2Name = null;
                         _context.Update(board);
-                        
                     }
                 }
                 await _context.SaveChangesAsync();
@@ -110,6 +122,39 @@ namespace ChessGame.Signal
         {
 
         }
+        #endregion
+
+        #region Game Logic
+        //public struct BoardRequest
+        //{
+        //    public string[][] board { get; set; }
+        //    public Coord coordChosen { get; set; }
+        //    public Coord coordClick { get; set; }
+        //    public string direction { get; set; }
+        //}
+        //public async Task GeneratePossibleMove(BoardRequest request)
+        //{
+        //    Direction direction = request.direction.ToLower() == "whitegodown" ? Direction.WhiteGodown : Direction.WhiteGoup;
+        //    GameBoard board = GameBoard.GetBoard(request.board, direction);
+
+        //    Piece piece = board.GetSquare(request.coordClick).piece;
+        //    piece.GeneratePossibleMove();
+        //}
+
+        //public async Task Move(BoardRequest request)
+        //{
+        //    Direction direction = request.direction.ToLower() == "whitegodown" ? Direction.WhiteGodown : Direction.WhiteGoup;
+        //    GameBoard board = GameBoard.GetBoard(request.board, direction);
+
+        //    Piece piece = board.GetSquare(request.coordChosen).piece;
+        //    piece.GeneratePossibleMove();
+        //    if (piece.possibleMoves.Contains(board.GetSquare(request.coordClick)))
+        //    {
+        //        return true;
+        //    }
+        //    else return false;
+        //}
+
         #endregion
     }
 }

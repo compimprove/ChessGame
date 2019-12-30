@@ -9,8 +9,8 @@ namespace ChessGame.Models.Chess
     {
         public Piece piece { get; set; } = null;
         public Coord coord { get; }
-        public Board board { get; }
-        public Square(string pieceCode, Coord coord, Board board)
+        public GameBoard board { get; }
+        public Square(string pieceCode, Coord coord, GameBoard board)
         {
             this.piece = Piece.GetPiece(pieceCode, this);
             this.coord = coord;

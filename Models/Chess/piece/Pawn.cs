@@ -19,7 +19,7 @@ namespace ChessGame.Models.Chess.piece
 
             int row = thisSquare.coord.row;
             int col = thisSquare.coord.col;
-            Board board = square.board;
+            GameBoard board = square.board;
 
             // Square have nothing or square have piece with its color different
             // than Pawn's color
@@ -48,7 +48,7 @@ namespace ChessGame.Models.Chess.piece
 
             int row = thisSquare.coord.row;
             int col = thisSquare.coord.col;
-            Board board = square.board;
+            GameBoard board = square.board;
             possibleMoves.Clear();
 
             // Square have nothing or square have piece with its color different

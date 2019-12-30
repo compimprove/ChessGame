@@ -14,11 +14,11 @@ class Board extends Component {
         this.state = {
             board: null,
             flag: false,
+            userTurn: this.props.userTurn,
         }
         this.userColor = this.props.userColor
         this.handleSquareClick = this.handleSquareClick.bind(this);
         this.loadBoard = this.loadBoard.bind(this);
-        this.userTurn = true;
 
         if (this.userColor === "white") {
             this.state.board = InitialBoard.call(this, "white", "black")
@@ -27,12 +27,20 @@ class Board extends Component {
         } else {
             throw 'UserColor code is wrong';
         }
+
         this.apiGenerateMove = 'api/Board/GeneratePossibleMove';
         this.apiMove = 'api/Board/Move';
         this.cordChosen = null;
         this.hightLightCoord = [];
         this.removeHighlight = this.removeHighlight.bind(this);
         this.hightLight = this.hightLight.bind(this);
+    }
+
+    componentDidMount() {
+        this.props.connection.on("OpponentMoving", (coordChosen, coordClick) => {
+            this.move(coordChosen, coordClick);
+            this.setState({ userTurn: true });
+        })
     }
 
     convertBoard() {
@@ -92,10 +100,11 @@ class Board extends Component {
         let havePiece = Boolean(piece);
         if (havePiece && piece.color == this.userColor) {
             await this.handleGenerateMove(coord);
-        } else {
+        } else if (this.state.userTurn) {
             await this.handleMove(coord);
+        } else {
+            this.removeHighlight();
         }
-
     }
 
     async handleGenerateMove(coord) {
@@ -110,6 +119,7 @@ class Board extends Component {
             throw "User Color code is wrong";
 
         data = {
+            boardId: this.props.boardId,
             board: this.convertBoard(),
             coordClick: coord,
             direction: direction,
@@ -139,6 +149,7 @@ class Board extends Component {
 
     async handleMove(coord) {
         if (this.props.playingMode == false) return;
+
         function findCoord(coordResult) {
             return (coordResult.row == coord.row && coordResult.col == coord.col);
         }
@@ -159,10 +170,12 @@ class Board extends Component {
             throw "User Color code is wrong";
 
         data = {
+            boardId: this.props.boardId,
             board: this.convertBoard(),
             coordChosen: coordChosen,
             coordClick: coordClick,
             direction: direction,
+            userName: this.props.userName
         }
 
         let response = await fetch(this.apiMove, {
@@ -177,7 +190,7 @@ class Board extends Component {
             await response.json().then(result => {
                 if (result) {
                     this.move(coordChosen, coordClick);
-                    this.userTurn = false;
+                    this.setState({ userTurn: false });
                 }
             });
         } else {
@@ -190,14 +203,23 @@ class Board extends Component {
         let piece = this.state.board[coordChosen.row][coordChosen.col].removePiece();
         this.state.board[coordClick.row][coordClick.col].removePiece();
         this.state.board[coordClick.row][coordClick.col].piece = piece;
-        this.loadBoard();
     }
 
     render() {
         //console.log(this.state.board[0][0]);
         let array = [0, 1, 2, 3, 4, 5, 6, 7];
         return (
-            <div className="row justify-content-center">
+            <div className="row">
+                <div className="col-2 side-inboard">
+                    <div className="mt-1">
+                        {!this.state.userTurn &&
+                            <span className="badge badge-pill badge-primary">Turn</span>}
+                    </div>
+                    <div className="mb-2">
+                        {this.state.userTurn &&
+                            <span className="badge badge-pill badge-primary">Turn</span>}
+                    </div>
+                </div>
                 <div>
                     <button className="square" style={{ marginBottom: '-6px' }} disabled>.</button><br />
                     {array.map(value => (
@@ -227,7 +249,7 @@ class Board extends Component {
                         </li>
                     ))}
                 </div>
-                <div className="ml-3">
+                <div className="ml-3 col" onClick={this.removeHighlight}>
                     <button className="btn btn-outline-primary mb-3" onClick={this.removeHighlight}>Refresh</button>
                 </div>
             </div>
@@ -239,16 +261,51 @@ class Board extends Component {
 function InitialBoard(userColor, otherColor) {
     let board = [];
     board[0] = [];
-    let pieceRow1 = [
-        new Rook(otherColor, board),
-        new Knight(otherColor, board),
-        new Bishop(otherColor, board),
-        new Queen(otherColor, board),
-        new King(otherColor, board),
-        new Bishop(otherColor, board),
-        new Knight(otherColor, board),
-        new Rook(otherColor, board),
-    ]
+    let pieceRow1, pieceRow7;
+    if (userColor == "white") {
+        pieceRow1 = [
+            new Rook(otherColor, board),
+            new Knight(otherColor, board),
+            new Bishop(otherColor, board),
+            new Queen(otherColor, board),
+            new King(otherColor, board),
+            new Bishop(otherColor, board),
+            new Knight(otherColor, board),
+            new Rook(otherColor, board),
+        ];
+        pieceRow7 = [
+            new Rook(userColor, board),
+            new Knight(userColor, board),
+            new Bishop(userColor, board),
+            new Queen(userColor, board),
+            new King(userColor, board),
+            new Bishop(userColor, board),
+            new Knight(userColor, board),
+            new Rook(userColor, board),
+        ]
+    } else if (userColor == "black") {
+        pieceRow1 = [
+            new Rook(otherColor, board),
+            new Knight(otherColor, board),
+            new Bishop(otherColor, board),
+            new King(otherColor, board),
+            new Queen(otherColor, board),
+            new Bishop(otherColor, board),
+            new Knight(otherColor, board),
+            new Rook(otherColor, board),
+        ];
+        pieceRow7 = [
+            new Rook(userColor, board),
+            new Knight(userColor, board),
+            new Bishop(userColor, board),
+            new King(userColor, board),
+            new Queen(userColor, board),
+            new Bishop(userColor, board),
+            new Knight(userColor, board),
+            new Rook(userColor, board),
+        ]
+    }
+
     for (let i = 0; i < 1; i++) {
         board[i] = [];
         for (let j = 0; j < 8; j++) {
@@ -287,16 +344,7 @@ function InitialBoard(userColor, otherColor) {
                 board[i][j] = new SquareC("black", pawn, { row: i, col: j });
         }
     }
-    let pieceRow7 = [
-        new Rook(userColor, board),
-        new Knight(userColor, board),
-        new Bishop(userColor, board),
-        new Queen(userColor, board),
-        new King(userColor, board),
-        new Bishop(userColor, board),
-        new Knight(userColor, board),
-        new Rook(userColor, board),
-    ]
+
     for (let i = 7; i < 8; i++) {
         board[i] = [];
         for (let j = 0; j < 8; j++) {

@@ -15,6 +15,11 @@ namespace ChessGame.Models.Chess
             col = newCol;
         }
 
+        public Coord getMindSymmetry()
+        {
+            return new Coord(7 - this.row, 7 - this.col);
+        }
+
         public override string ToString()
         {
             return $"row: {row}, col: {col}";
@@ -22,8 +27,8 @@ namespace ChessGame.Models.Chess
     }
     public enum Color
     {
-        Black,
-        White
+        Black = 0,
+        White = 1
     }
     public enum Direction
     {

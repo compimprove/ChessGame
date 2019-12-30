@@ -6,13 +6,13 @@ using System.Collections.Generic;
 
 namespace ChessGame.Models.Chess
 {
-    public class Board
+    public class GameBoard
     {
         public Square[][] squares { get; set; }
         public Direction direction { get; set; }
         public List<Piece> WhitePieces { get; } = new List<Piece>();
         public List<Piece> BlackPieces { get; } = new List<Piece>();
-        public Board(Direction direction)
+        public GameBoard(Direction direction)
         {
             this.direction = direction;
         }
@@ -35,12 +35,12 @@ namespace ChessGame.Models.Chess
 
         /// <param name="board">the string[][] contains pieceCode; 
         /// Must have size 8x8</param>
-        public static Board GetBoard(string[][] board, Direction direction)
+        public static GameBoard GetBoard(string[][] board, Direction direction)
         {
             // board must have size 8x8
             if (board.Length == 8)
             {
-                Board result = new Board(direction);
+                GameBoard result = new GameBoard(direction);
                 Square[][] squares = new Square[8][];
                 for (int row = 0; row < 8; row++)
                 {

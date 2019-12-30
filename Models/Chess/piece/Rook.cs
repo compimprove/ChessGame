@@ -22,7 +22,7 @@ namespace ChessGame.Models.Chess.piece
 
             int row = thisSquare.coord.row;
             int col = thisSquare.coord.col;
-            Board board = square.board;
+            GameBoard board = square.board;
             possibleMoves.Clear();
 
             // all from this to the up
@@ -41,7 +41,7 @@ namespace ChessGame.Models.Chess.piece
                 else break;
             }
             // all from this to the down
-            for (int iRow = row + 1; iRow < Board.SIZE; iRow++)
+            for (int iRow = row + 1; iRow < GameBoard.SIZE; iRow++)
             {
                 Square square = board.GetSquare(new Coord(iRow, col));
                 if (square.isEmpty())
@@ -56,7 +56,7 @@ namespace ChessGame.Models.Chess.piece
                 else break;
             }
             // all from this to the right
-            for (int iCol = col + 1; iCol < Board.SIZE; iCol++)
+            for (int iCol = col + 1; iCol < GameBoard.SIZE; iCol++)
             {
                 Square square = board.GetSquare(new Coord(row, iCol));
                 if (square.isEmpty())

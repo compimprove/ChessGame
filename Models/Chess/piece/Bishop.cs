@@ -23,7 +23,7 @@ namespace ChessGame.Models.Chess.piece
 
             int row = thisSquare.coord.row;
             int col = thisSquare.coord.col;
-            Board board = square.board;
+            GameBoard board = square.board;
             possibleMoves.Clear();
 
             // all from this to left up
@@ -45,7 +45,7 @@ namespace ChessGame.Models.Chess.piece
             }
             // all from this to right up
             for (int iRow = row - 1, iCol = col + 1;
-                iRow > -1 && iCol < Board.SIZE;
+                iRow > -1 && iCol < GameBoard.SIZE;
                 iRow--, iCol++)
             {
                 Square square = board.GetSquare(new Coord(iRow, iCol));
@@ -62,7 +62,7 @@ namespace ChessGame.Models.Chess.piece
             }
             // all from this to left down
             for (int iRow = row + 1, iCol = col - 1;
-                iRow < Board.SIZE && iCol > -1;
+                iRow < GameBoard.SIZE && iCol > -1;
                 iRow++, iCol--)
             {
                 Square square = board.GetSquare(new Coord(iRow, iCol));
@@ -79,7 +79,7 @@ namespace ChessGame.Models.Chess.piece
             }
             // all from this to right down
             for (int iRow = row + 1, iCol = col + 1;
-                iRow < Board.SIZE && iCol < Board.SIZE;
+                iRow < GameBoard.SIZE && iCol < GameBoard.SIZE;
                 iRow++, iCol++)
             {
                 Square square = board.GetSquare(new Coord(iRow, iCol));

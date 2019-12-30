@@ -22,7 +22,7 @@ namespace ChessGame.Models.Chess.piece
 
             int row = thisSquare.coord.row;
             int col = thisSquare.coord.col;
-            Board board = square.board;
+            GameBoard board = square.board;
             possibleMoves.Clear();
 
             Rook rook = new Rook(base.color, base.square);

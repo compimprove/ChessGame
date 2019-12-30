@@ -11,14 +11,13 @@ class Main extends Component {
         this.state = {
             userBoard: '',
             userName: '',
-            userColor: 'white',
             boards: '',
             mode: 'outBoard',
             playing: false,
             connection: null,
+            userTurn: false,
         }
         this.handleNameChange = this.handleNameChange.bind(this);
-        this.handleColorChange = this.handleColorChange.bind(this);
         this.handleCreateBoard = this.handleCreateBoard.bind(this);
     };
 
@@ -49,8 +48,8 @@ class Main extends Component {
             console.log(board);
             this.setState({ userBoard: board });
         })
-        connection.on("JoinedBoard", (board) => {
-            this.setState({ mode: "inBoard", userBoard: board })
+        connection.on("JoinedBoard", (board, userTurn) => {
+            this.setState({ mode: "inBoard", userBoard: board, userTurn: userTurn })
         })
 
         this.setState({ connection })
@@ -71,10 +70,6 @@ class Main extends Component {
         this.setState({
             userName: e.target.value.toUpperCase(),
         })
-    }
-
-    handleColorChange(e) {
-        this.setState({ userColor: e.target.value })
     }
 
     handleCreateBoard() {
@@ -99,11 +94,6 @@ class Main extends Component {
                         <div class="form-group col-3">
                             <label className="mb-2" htmlFor="name">Type your name to start</label>
                             <input type="text" value={this.state.userName} className="form-control" id="name" onChange={this.handleNameChange} required />
-                            <label className="mt-2 mr-2">Choose your color</label>
-                            <select value={this.state.userColor} onChange={this.handleColorChange}>
-                                <option value="white">White</option>
-                                <option value="black">Black</option>
-                            </select>
                         </div>
                     </div>
                     <div className="row justify-content-center">
@@ -137,19 +127,28 @@ class Main extends Component {
             )
         }
         else if (this.state.mode == 'inBoard') {
+            let color, opponentName;
+            if (this.state.userBoard.user1Name == this.state.userName) {
+                color = this.state.userBoard.user1Color == 0 ? 'black' : 'white';
+                opponentName = this.state.userBoard.user2Name;
+            } else if (this.state.userBoard.user2Name == this.state.userName) {
+                color = this.state.userBoard.user2Color == 0 ? 'black' : 'white';
+                opponentName = opponentName = this.state.userBoard.user1Name;
+            }
             return (
                 <div className="row">
                     <div className="col-2 side-inboard">
-                        {this.state.userBoard.user1Name == this.state.userName
-                            && <h4>{this.state.userBoard.user2Name}</h4>}
-                        {this.state.userBoard.user2Name == this.state.userName
-                            && <h4>{this.state.userBoard.user1Name}</h4>}
+                        <h4>{opponentName}</h4>
                         <h4>{this.state.userName}</h4>
                     </div>
                     <div className="col-10">
                         <Board
-                            userColor={this.state.userColor}
-                            playingMode={this.state.playing} />
+                            userName={this.state.userName}
+                            userTurn={this.state.userTurn}
+                            boardId={this.state.userBoard.id}
+                            userColor={color}
+                            playingMode={this.state.playing}
+                            connection={this.state.connection} />
                     </div>
                 </div>
             )
