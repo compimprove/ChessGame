@@ -14,9 +14,9 @@ namespace ChessGame.Signal
     {
 
         public const int MaxBoards = 100;
-        private InMemoryDbContext _context;
+        private SqlServerDbContext _context;
 
-        public GameHub(InMemoryDbContext context)
+        public GameHub(SqlServerDbContext context)
         {
             this._context = context;
         }
@@ -69,7 +69,6 @@ namespace ChessGame.Signal
 
         public async Task Disconnect(long boardId)
         {
-            Console.WriteLine("One Client closed");
             if (boardId != null)
             {
                 Board board = await _context.boards.FindAsync(boardId);
