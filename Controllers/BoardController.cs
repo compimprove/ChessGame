@@ -27,10 +27,10 @@ namespace ChessGame.Controllers
     [ApiController]
     public class BoardController : ControllerBase
     {
-        private readonly SqlServerDbContext _context;
+        private readonly InMemoryDbContext _context;
         private readonly IHubContext<GameHub> _hubContext;
         public BoardController(
-            SqlServerDbContext context,
+            InMemoryDbContext context,
             IHubContext<GameHub> hubContext)
         {
             _context = context;

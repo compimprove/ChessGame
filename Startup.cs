@@ -25,7 +25,7 @@ namespace ChessGame
             services.AddControllersWithViews();
             services.AddSignalR();
             services.AddDbContext<InMemoryDbContext>(opt => opt.UseInMemoryDatabase("ChessGame"));
-            services.AddDbContext<SqlServerDbContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("SqlServerDbContext")));
+            // services.AddDbContext<SqlServerDbContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("SqlServerDbContext")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -14,9 +14,9 @@ namespace ChessGame.Signal
     {
 
         public const int MaxBoards = 100;
-        private SqlServerDbContext _context;
+        private InMemoryDbContext _context;
 
-        public GameHub(SqlServerDbContext context)
+        public GameHub(InMemoryDbContext context)
         {
             this._context = context;
         }
