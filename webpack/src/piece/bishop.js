@@ -6,11 +6,11 @@ export default class Bishop {
         this.board = board;
         this.code = this.color + 'B';
     }
-    image() {
+    imageUrl() {
         if (this.color == 'black')
-            return (<img src="./images/wikipedia/bB.png" />)
+            return "./images/wikipedia/bB.png"
         else if (this.color == 'white')
-            return (<img src="./images/wikipedia/wB.png" />)
-        else return (<span>??</span>)
+            return "./images/wikipedia/wB.png"
+        else return ""
     }
 }

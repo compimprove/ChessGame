@@ -136,20 +136,14 @@ class Main extends Component {
                 opponentName = opponentName = this.state.userBoard.user1Name;
             }
             return (
-                <div className="row">
-                    <div className="col-2 side-inboard">
-                        <h4>{opponentName}</h4>
-                        <h4>{this.state.userName}</h4>
-                    </div>
-                    <div className="col-10">
-                        <Board
-                            userName={this.state.userName}
-                            userTurn={this.state.userTurn}
-                            boardId={this.state.userBoard.id}
-                            userColor={color}
-                            playingMode={this.state.playing}
-                            connection={this.state.connection} />
-                    </div>
+                <div>
+                    <Board
+                        userName={this.state.userName}
+                        userTurn={this.state.userTurn}
+                        boardId={this.state.userBoard.id}
+                        userColor={color}
+                        playingMode={this.state.playing}
+                        connection={this.state.connection} />
                 </div>
             )
         }

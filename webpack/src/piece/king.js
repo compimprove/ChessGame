@@ -9,11 +9,11 @@ export default class King {
     isKing() {
         return true;
     }
-    image() {
+    imageUrl() {
         if (this.color == 'black')
-            return (<img src="./images/wikipedia/bK.png" />)
+            return "./images/wikipedia/bK.png"
         else if (this.color == 'white')
-            return (<img src="./images/wikipedia/wK.png" />)
-        else return (<span>??</span>)
+            return "./images/wikipedia/wK.png"
+        else return ""
     }
 }

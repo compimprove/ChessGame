@@ -7,11 +7,11 @@ export default class Rook {
         this.code = this.color + 'R';
     }
 
-    image() {
+    imageUrl() {
         if (this.color == 'black')
-            return (<img src="./images/wikipedia/bR.png" />)
+            return "./images/wikipedia/bR.png";
         else if (this.color == 'white')
-            return (<img src="./images/wikipedia/wR.png" />)
-        else return (<span>??</span>)
+            return "./images/wikipedia/wR.png";
+        else return ""
     }
 }

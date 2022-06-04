@@ -6,11 +6,11 @@ export default class Knight {
         this.board = board;
         this.code = this.color + 'N';
     }
-    image() {
+    imageUrl() {
         if (this.color == 'black')
-            return (<img src="./images/wikipedia/bN.png" />)
+            return "./images/wikipedia/bN.png";
         else if (this.color == 'white')
-            return (<img src="./images/wikipedia/wN.png" />)
-        else return (<span>??</span>)
+            return "./images/wikipedia/wN.png";
+        else return "";
     }
 }

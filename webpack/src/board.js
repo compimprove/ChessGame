@@ -7,18 +7,22 @@ import Bishop from './piece/bishop';
 import Rook from './piece/rook';
 import Knight from './piece/knight';
 import SquareC from './squareC';
+import MovingError from './errors/movingError';
 
 class Board extends Component {
     constructor(props) {
         super(props);
+        this.boardRef = React.createRef();
         this.state = {
             board: null,
             flag: false,
             userTurn: this.props.userTurn,
+            movingPiece: false
         }
         this.userColor = this.props.userColor
         this.handleSquareClick = this.handleSquareClick.bind(this);
         this.loadBoard = this.loadBoard.bind(this);
+        this.onClickContainer = this.onClickContainer.bind(this);
 
         if (this.userColor === "white") {
             this.state.board = InitialBoard.call(this, "white", "black")
@@ -38,6 +42,7 @@ class Board extends Component {
 
     componentDidMount() {
         this.props.connection.on("OpponentMoving", (coordChosen, coordClick) => {
+            this.removeHighlight();
             this.move(coordChosen, coordClick);
             this.setState({ userTurn: true });
         })
@@ -77,20 +82,19 @@ class Board extends Component {
     }
 
     hightLight(coord) {
+        if (this.hightLightCoord.findIndex(hightLightCoord => hightLightCoord.col == coord.col && hightLightCoord.row == coord.row) != -1) return;
         let square = this.state.board[coord.row][coord.col];
         if (square.piece == null) {
-            square.color = "lightblue";
+            square.hightLight = "highlight";
         } else {
-            square.color = "orange";
+            square.hightLight = "canKilled";
         }
         this.hightLightCoord.push(coord);
     }
 
     removeHighlight() {
-        if (this.hightLightCoord == null) return;
         this.hightLightCoord.forEach(coord => {
-            this.state.board[coord.row][coord.col].color =
-                ((coord.row - coord.col) % 2 == 0) ? "white" : "black";
+            this.state.board[coord.row][coord.col].hightLight = null;
         });
         this.hightLightCoord = [];
         this.loadBoard();
@@ -98,13 +102,17 @@ class Board extends Component {
 
     async handleSquareClick(coord, piece) {
         let havePiece = Boolean(piece);
-        if (havePiece && piece.color == this.userColor) {
-            await this.handleGenerateMove(coord);
-        } else if (this.state.userTurn) {
-            await this.handleMove(coord);
+        if (this.state.userTurn) {
+            if (havePiece && piece.color == this.userColor) {
+                await this.handleGenerateMove(coord);
+            }
+            else {
+                await this.handleMove(coord);
+            }
         } else {
             this.removeHighlight();
         }
+        // } else await this.handleMove(coord);
     }
 
     async handleGenerateMove(coord) {
@@ -149,14 +157,20 @@ class Board extends Component {
 
     async handleMove(coord) {
         if (this.props.playingMode == false) return;
+        try {
+            function findCoord(coordResult) {
+                return (coordResult.row == coord.row && coordResult.col == coord.col);
+            }
+            if (this.hightLightCoord.findIndex(findCoord) >= 0) {
+                await this.movePiece(this.coordChosen, coord);
+            } else {
+                this.removeHighlight();
+            }
+        } catch (e) {
+            if (e instanceof MovingError) {
 
-        function findCoord(coordResult) {
-            return (coordResult.row == coord.row && coordResult.col == coord.col);
+            }
         }
-        if (this.hightLightCoord.findIndex(findCoord) >= 0) {
-            await this.movePiece(this.coordChosen, coord);
-        }
-        this.removeHighlight();
     }
 
     async movePiece(coordChosen, coordClick) {
@@ -187,30 +201,47 @@ class Board extends Component {
             body: JSON.stringify(data),
         });
         if (response.status === 200) {
-            await response.json().then(result => {
-                if (result) {
-                    this.move(coordChosen, coordClick);
-                    this.setState({ userTurn: false });
-                }
-            });
+            let result = await response.json();
+            if (result) {
+                this.setState({ userTurn: false });
+                this.removeHighlight();
+                await this.move(coordChosen, coordClick);
+            } else {
+                throw MovingError();
+            }
         } else {
-
+            throw MovingError();
         }
 
     }
 
-    move(coordChosen, coordClick) {
+    async move(coordChosen, coordClick) {
+        console.log(coordChosen, coordClick);
+        this.setState({
+            movingPiece: {
+                from: coordChosen,
+                to: coordClick
+            }
+        });
+        await new Promise(r => setTimeout(r, 400));
         let piece = this.state.board[coordChosen.row][coordChosen.col].removePiece();
         this.state.board[coordClick.row][coordClick.col].removePiece();
-        this.state.board[coordClick.row][coordClick.col].piece = piece;
+        this.state.board[coordClick.row][coordClick.col].addPiece(piece);
+        this.setState({
+            movingPiece: false
+        });
+    }
+
+    onClickContainer(e) {
+        if (e.target === this.boardRef.current) {
+            this.removeHighlight();
+        }
     }
 
     render() {
-        //console.log(this.state.board[0][0]);
-        let array = [0, 1, 2, 3, 4, 5, 6, 7];
         return (
-            <div className="row">
-                <div className="col-2 side-inboard">
+            <div className='container' onClick={this.onClickContainer} ref={this.boardRef}>
+                {/* <div className="col-2 side-inboard">
                     <div className="mt-1">
                         {!this.state.userTurn &&
                             <span className="badge badge-pill badge-primary">Turn</span>}
@@ -219,41 +250,24 @@ class Board extends Component {
                         {this.state.userTurn &&
                             <span className="badge badge-pill badge-primary">Turn</span>}
                     </div>
-                </div>
-                <div>
-                    <button className="square" style={{ marginBottom: '-6px' }} disabled>.</button><br />
-                    {array.map(value => (
-                        <>
-                            <button className="square" style={{ marginBottom: '-1px' }} disabled>{value}</button>
-                            <br />
-                        </>
-                    ))}
-                </div>
+                </div> */}
                 <div className="board">
-                    <li className="row-square">
-                        {array.map(value => (
-                            <button className="square" disabled>{value}</button>
-                        ))}
-                    </li>
-
                     {this.state.board.map((row, index) => (
-                        <li className="row-square" key={index}>
+                        <>
                             {row.map((squareC) => (
                                 <Square
+                                    movingPiece={this.state.movingPiece}
+                                    hightLight={squareC.hightLight}
                                     color={squareC.color}
                                     piece={squareC.piece}
                                     coord={squareC.coord}
                                     handleSquareClick={this.handleSquareClick}
                                 />
                             ))}
-                        </li>
+                        </>
                     ))}
                 </div>
-                <div className="ml-3 col" onClick={this.removeHighlight}>
-                    <button className="btn btn-outline-primary mb-3" onClick={this.removeHighlight}>Refresh</button>
-                </div>
             </div>
-
         )
     }
 }

@@ -7,11 +7,11 @@ export default class Pawn {
         this.code = this.color + 'P';
         this.direction = direction;
     }
-    image() {
+    imageUrl() {
         if (this.color == 'black')
-            return (<img src="./images/wikipedia/bP.png" />)
+            return "./images/wikipedia/bP.png";
         else if (this.color == 'white')
-            return (<img src="./images/wikipedia/wP.png" />)
-        else return (<span>??</span>)
+            return "./images/wikipedia/wP.png";
+        else return ""
     }
 }

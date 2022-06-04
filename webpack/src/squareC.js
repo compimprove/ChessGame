@@ -12,4 +12,8 @@ export default class SquareC {
         this.piece = null;
         return piece;
     }
+
+    addPiece(piece) {
+        this.piece = piece;
+    }
 }

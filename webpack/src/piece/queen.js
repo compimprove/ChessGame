@@ -6,11 +6,11 @@ export default class Queen {
         this.board = board;
         this.code = this.color + 'Q';
     }
-    image() {
+    imageUrl() {
         if (this.color == 'black')
-            return (<img src="./images/wikipedia/bQ.png" />)
+            return "./images/wikipedia/bQ.png";
         else if (this.color == 'white')
-            return (<img src="./images/wikipedia/wQ.png" />)
-        else return (<span>??</span>)
+            return "./images/wikipedia/wQ.png";
+        else return ""
     }
 }
