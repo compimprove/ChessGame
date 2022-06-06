@@ -8,6 +8,7 @@ import Rook from './piece/rook';
 import Knight from './piece/knight';
 import SquareC from './squareC';
 import MovingError from './errors/movingError';
+import { User, UserWaiting } from './user';
 
 class Board extends Component {
     constructor(props) {
@@ -216,7 +217,6 @@ class Board extends Component {
     }
 
     async move(coordChosen, coordClick) {
-        console.log(coordChosen, coordClick);
         this.setState({
             movingPiece: {
                 from: coordChosen,
@@ -241,16 +241,7 @@ class Board extends Component {
     render() {
         return (
             <div className='container' onClick={this.onClickContainer} ref={this.boardRef}>
-                {/* <div className="col-2 side-inboard">
-                    <div className="mt-1">
-                        {!this.state.userTurn &&
-                            <span className="badge badge-pill badge-primary">Turn</span>}
-                    </div>
-                    <div className="mb-2">
-                        {this.state.userTurn &&
-                            <span className="badge badge-pill badge-primary">Turn</span>}
-                    </div>
-                </div> */}
+                <UserWaiting />
                 <div className="board">
                     {this.state.board.map((row, index) => (
                         <>
@@ -267,6 +258,7 @@ class Board extends Component {
                         </>
                     ))}
                 </div>
+                <User name="DinhNT" />
             </div>
         )
     }

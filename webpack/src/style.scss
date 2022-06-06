@@ -1,14 +1,101 @@
-﻿$square-size: 80px;
-$board-max-size: $square-size * 8;
+﻿$square-size: 70px;
+$board-max-size: $square-size*8;
 $square-border-size: 1px;
 $highlightColor: #BACA2B;
+$primary1: #153D07;
+$secondary2: #F6F669;
+$secondary3: #EEEED2;
+$accent3: #FFC887;
+$font1: "Fresh Fruit";
+$font2: 'Lato', sans-serif;
+$h3-size: 1.17rem;
+
+p,
+span,
+div {
+    font-family: $font2;
+}
 
 body {
-    margin: 0px
+    margin: 0px;
+    background-color: $primary1;
 }
 
 .container {
     height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+div.welcome-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+h1.welcome-text {
+    font-size: 3.8em;
+    color: $secondary2;
+    font-family: $font1;
+    align-self: center;
+    text-align: center;
+}
+
+div.type-to-start {
+    align-self: center;
+    font-size: $h3-size;
+    color: $secondary2;
+    font-family: $font2;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+
+    >input {
+        box-sizing: border-box;
+        padding: 20px 20px;
+        outline: none;
+        margin: 2px 10px 0px 10px;
+        height: 2.6em;
+        width: 150px;
+        border-radius: 15px;
+        border: 1px solid $secondary3;
+        background-color: $primary1;
+        cursor: pointer;
+        font-size: $h3-size;
+        font-family: $font2;
+        color: $secondary3;
+    }
+
+    >input::placeholder {
+        font-size: $h3-size;
+        font-family: $font2;
+        color: $secondary3;
+    }
+}
+
+p.chose-board {
+    margin-top: 0;
+    font-size: $h3-size;
+    color: $secondary3;
+    align-self: center;
+    font-family: $font2;
+}
+
+button.play-button {
+    cursor: pointer;
+    border-radius: 15px;
+    align-self: center;
+    width: fit-content;
+    padding: 15px 115px;
+    font-size: $h3-size;
+    font-family: $font2;
+    color: $primary1;
+    background-color: $secondary2;
+    margin: 2em 0px;
 }
 
 .board {
@@ -34,7 +121,6 @@ button.square {
     outline: none;
     box-sizing: border-box;
     border-width: 0px;
-    // border: $square-border-size solid black;
 
     &:focus {
         outline: none;
@@ -71,23 +157,75 @@ button.kingDangered {
     background-color: darkred;
 }
 
-.cell-board {
-    border: 1px solid tan;
-    width: 100px;
-    height: 100px;
+div.list-board {
+    margin-top: 0.67em;
+    max-width: 500px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-self: center;
+}
 
-    >button {
-        visibility: hidden;
+.cell-board {
+    margin: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid $secondary3;
+    border-radius: 15px;
+    width: 110px;
+    height: 110px;
+    box-sizing: border-box;
+    background-color: $primary1;
+    text-align: center;
+    cursor: pointer;
+
+    >label {
+        cursor: pointer;
+        font-family: $font2;
+        font-size: 1em;
+        color: $secondary3;
     }
 
     &:hover {
-        >button {
-            visibility: visible;
+        background-color: $secondary3;
+
+        >label {
+            color: $primary1;
         }
     }
 }
 
-.row-square {
-    list-style: none;
-    margin-bottom: -6px;
+.create-board {
+    @extend .cell-board;
+
+    >svg {
+        width: 30%;
+        height: 30%;
+        fill: $secondary2;
+    }
+
+    &:hover {
+        >svg {
+            fill: $primary1;
+        }
+    }
+}
+
+.user-normal {
+    width: 98vw;
+    margin: 15px 0px;
+    max-width: $board-max-size;
+    display: flex;
+    align-items: flex-start;
+
+    >svg {
+        fill: $secondary3;
+        margin-right: 10px;
+    }
+
+    >span {
+        color: $accent3;
+        font-size: $h3-size;
+    }
 }
