@@ -10,6 +10,18 @@ $font1: "Fresh Fruit";
 $font2: 'Lato', sans-serif;
 $h3-size: 1.17rem;
 
+@media only screen and (min-width: 769px) {
+    .view-port-max-height {
+        height: 100vh;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .view-port-max-height {
+        height: 85vh;
+    }
+}
+
 p,
 span,
 div {
@@ -22,7 +34,7 @@ body {
 }
 
 .container {
-    height: 100vh;
+    @extend .view-port-max-height;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -30,7 +42,7 @@ body {
 }
 
 div.welcome-container {
-    height: 100vh;
+    @extend .view-port-max-height;
     display: flex;
     flex-direction: column;
     justify-content: center;
