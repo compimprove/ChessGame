@@ -8,7 +8,7 @@ import Rook from './piece/rook';
 import Knight from './piece/knight';
 import SquareC from './squareC';
 import MovingError from './errors/movingError';
-import { User, UserWaiting } from './user';
+import { User, UserThinking, UserWaiting } from './user';
 
 class Board extends Component {
     constructor(props) {
@@ -239,9 +239,23 @@ class Board extends Component {
     }
 
     render() {
+        let opponent;
+        let user;
+        if (this.props.opponentName) {
+            if (this.state.userTurn) {
+                opponent = <User name={this.props.opponentName} />;
+                user = <UserThinking name={this.props.userName} />
+            } else {
+                opponent = <UserThinking name={this.props.opponentName} />;
+                user = <User name={this.props.userName} />
+            }
+        } else {
+            opponent = <UserWaiting />;
+            user = <User name={this.props.userName} />
+        }
         return (
             <div className='container' onClick={this.onClickContainer} ref={this.boardRef}>
-                <UserWaiting />
+                {opponent}
                 <div className="board">
                     {this.state.board.map((row, index) => (
                         <>
@@ -258,7 +272,7 @@ class Board extends Component {
                         </>
                     ))}
                 </div>
-                <User name="DinhNT" />
+                {user}
             </div>
         )
     }

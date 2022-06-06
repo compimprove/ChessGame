@@ -156,10 +156,11 @@ class Main extends Component {
                 opponentName = this.state.userBoard.user2Name;
             } else if (this.state.userBoard.user2Name == this.state.userName) {
                 color = this.state.userBoard.user2Color == 0 ? 'black' : 'white';
-                opponentName = opponentName = this.state.userBoard.user1Name;
+                opponentName = this.state.userBoard.user1Name;
             }
             return (
                 <Board
+                    opponentName={opponentName}
                     userName={this.state.userName}
                     userTurn={this.state.userTurn}
                     boardId={this.state.userBoard.id}
