@@ -9,6 +9,7 @@ import Knight from './piece/knight';
 import SquareC from './squareC';
 import MovingError from './errors/movingError';
 import { User, UserThinking, UserWaiting } from './user';
+import {debounce} from "lodash";
 
 class Board extends Component {
     constructor(props) {
@@ -21,10 +22,9 @@ class Board extends Component {
             movingPiece: false
         }
         this.userColor = this.props.userColor
-        this.handleSquareClick = this.handleSquareClick.bind(this);
+        this.handleSquareClick = debounce(this.handleSquareClick.bind(this), 300);
         this.loadBoard = this.loadBoard.bind(this);
         this.onClickContainer = this.onClickContainer.bind(this);
-
         if (this.userColor === "white") {
             this.state.board = InitialBoard.call(this, "white", "black")
         } else if (this.userColor === "black") {
@@ -102,6 +102,7 @@ class Board extends Component {
     }
 
     async handleSquareClick(coord, piece) {
+        console.log("square click");
         let havePiece = Boolean(piece);
         if (this.state.userTurn) {
             if (havePiece && piece.color == this.userColor) {
