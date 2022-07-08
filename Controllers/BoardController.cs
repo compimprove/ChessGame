@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using ChessGame.Models;
 using ChessGame.Models.Chess;
-using ChessGame.Models.Chess.piece;
 using ChessGame.Data;
 using ChessGame.Service;
 using ChessGame.Signal;

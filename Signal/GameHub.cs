@@ -4,10 +4,8 @@ using System.Threading.Tasks;
 using ChessGame.Data;
 using ChessGame.Models;
 using Microsoft.EntityFrameworkCore;
-using System;
 using ChessGame.Controllers;
 using ChessGame.Models.Chess;
-using ChessGame.Models.Chess.piece;
 using ChessGame.Service;
 
 namespace ChessGame.Signal
