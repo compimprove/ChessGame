@@ -8,6 +8,8 @@ namespace ChessGame.Models.Chess.piece
 
     public class Pawn : Piece
     {
+        private readonly int BaseValue = 100;
+
         public Pawn(Color color, Square square) : base(color, square)
         {
         }
@@ -40,6 +42,10 @@ namespace ChessGame.Models.Chess.piece
                 possibleMoves.Add(board.GetSquare(c2));
             }
             return possibleMoves;
+        }
+        public override int getValue(Color color)
+        {
+            return color == this.color ? BaseValue : -BaseValue;
         }
         public override void GeneratePossibleMove()
         {
@@ -108,6 +114,11 @@ namespace ChessGame.Models.Chess.piece
                     }
                 }
             }
+        }
+        
+        public override string ToString()
+        {
+            return base.color.ToDescriptionString() + "P";
         }
     }
 }

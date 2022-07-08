@@ -7,6 +7,7 @@ namespace ChessGame.Models.Chess.piece
 {
     public class Knight : Piece
     {
+        private readonly int BaseValue = 320;
         public Knight(Color color, Square square) : base(color, square)
         {
         }
@@ -14,6 +15,10 @@ namespace ChessGame.Models.Chess.piece
         {
             this.GeneratePossibleMove();
             return this.possibleMoves;
+        }
+        public override int getValue(Color color)
+        {
+            return color == this.color ? BaseValue : -BaseValue;
         }
         public override void GeneratePossibleMove()
         {
@@ -51,6 +56,11 @@ namespace ChessGame.Models.Chess.piece
                         possibleMoves.Add(square);
                 }
             }
+        }
+        
+        public override string ToString()
+        {
+            return base.color.ToDescriptionString() + "N";
         }
     }
 }

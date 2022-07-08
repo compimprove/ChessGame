@@ -7,14 +7,23 @@ namespace ChessGame.Models.Chess.piece
 {
     public class Queen : Piece
     {
+        private readonly int BaseValue = 900;
+
         public Queen(Color color, Square square) : base(color, square)
         {
         }
+
+        public override string ToString()
+        {
+            return base.color.ToDescriptionString() + "Q";
+        }
+
         public override List<Square> PossibleEatingMove()
         {
             this.GeneratePossibleMove();
             return this.possibleMoves;
         }
+
         public override void GeneratePossibleMove()
         {
             Square thisSquare = base.square;
@@ -32,6 +41,11 @@ namespace ChessGame.Models.Chess.piece
 
             base.possibleMoves.AddRange(rook.possibleMoves);
             base.possibleMoves.AddRange(bishop.possibleMoves);
+        }
+
+        public override int getValue(Color color)
+        {
+            return color == this.color ? BaseValue : -BaseValue;
         }
     }
 }

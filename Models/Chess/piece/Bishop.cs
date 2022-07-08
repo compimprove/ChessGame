@@ -1,24 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ChessGame.Models.Chess.piece
 {
     public class Bishop : Piece
     {
+        private readonly int BaseValue = 330;
+
         public Bishop(Color color, Square square) : base(color, square)
         {
         }
 
+        public override string ToString()
+        {
+            return color.ToDescriptionString() + "B";
+        }
+
+        private readonly int[][] BishopValueWhite =
+        {
+            new[] { -50, -40, -30, -30, -30, -30, -40, -50 },
+            new[] { -40, -20, 0, 0, 0, 0, -20, -40 },
+            new[] { -30, 0, 10, 15, 15, 10, 0, -30 },
+            new[] { -30, 5, 15, 20, 20, 15, 5, -30 },
+            new[] { -30, 0, 15, 20, 20, 15, 0, -30 },
+            new[] { -30, 5, 10, 15, 15, 10, 5, -30 },
+            new[] { -40, -20, 0, 5, 5, 0, -20, -40 },
+            new[] { -50, -40, -30, -30, -30, -30, -40, -50 }
+        };
+
+
+        public override int getValue(Color color)
+        {
+            return color == this.color ? BaseValue : -BaseValue;
+        }
+
         public override List<Square> PossibleEatingMove()
         {
-            this.GeneratePossibleMove();
-            return this.possibleMoves;
+            GeneratePossibleMove();
+            return possibleMoves;
         }
+
         public override void GeneratePossibleMove()
         {
-            Square thisSquare = base.square;
+            Square thisSquare = this.square;
             if (thisSquare == null) return;
 
             int row = thisSquare.coord.row;
@@ -28,66 +51,69 @@ namespace ChessGame.Models.Chess.piece
 
             // all from this to left up
             for (int iRow = row - 1, iCol = col - 1;
-                iRow > -1 && iCol > -1;
-                iRow--, iCol--) 
+                 iRow > -1 && iCol > -1;
+                 iRow--, iCol--)
             {
                 Square square = board.GetSquare(new Coord(iRow, iCol));
                 if (square.isEmpty())
                 {
                     possibleMoves.Add(square);
                 }
-                else if (square.piece.color != base.color)
+                else if (square.piece.color != color)
                 {
                     possibleMoves.Add(square);
                     break;
                 }
                 else break;
             }
+
             // all from this to right up
             for (int iRow = row - 1, iCol = col + 1;
-                iRow > -1 && iCol < GameBoard.SIZE;
-                iRow--, iCol++)
+                 iRow > -1 && iCol < GameBoard.Size;
+                 iRow--, iCol++)
             {
                 Square square = board.GetSquare(new Coord(iRow, iCol));
                 if (square.isEmpty())
                 {
                     possibleMoves.Add(square);
                 }
-                else if (square.piece.color != base.color)
+                else if (square.piece.color != color)
                 {
                     possibleMoves.Add(square);
                     break;
                 }
                 else break;
             }
+
             // all from this to left down
             for (int iRow = row + 1, iCol = col - 1;
-                iRow < GameBoard.SIZE && iCol > -1;
-                iRow++, iCol--)
+                 iRow < GameBoard.Size && iCol > -1;
+                 iRow++, iCol--)
             {
                 Square square = board.GetSquare(new Coord(iRow, iCol));
                 if (square.isEmpty())
                 {
                     possibleMoves.Add(square);
                 }
-                else if (square.piece.color != base.color)
+                else if (square.piece.color != color)
                 {
                     possibleMoves.Add(square);
                     break;
                 }
                 else break;
             }
+
             // all from this to right down
             for (int iRow = row + 1, iCol = col + 1;
-                iRow < GameBoard.SIZE && iCol < GameBoard.SIZE;
-                iRow++, iCol++)
+                 iRow < GameBoard.Size && iCol < GameBoard.Size;
+                 iRow++, iCol++)
             {
                 Square square = board.GetSquare(new Coord(iRow, iCol));
                 if (square.isEmpty())
                 {
                     possibleMoves.Add(square);
                 }
-                else if (square.piece.color != base.color)
+                else if (square.piece.color != color)
                 {
                     possibleMoves.Add(square);
                     break;

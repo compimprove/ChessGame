@@ -7,9 +7,22 @@ namespace ChessGame.Models.Chess.piece
 {
     public class Rook : Piece
     {
+        private readonly int BaseValue = 500;
+
         public Rook(Color color, Square square) : base(color, square)
         {
         }
+        
+        public override string ToString()
+        {
+            return base.color.ToDescriptionString() + "R";
+        }
+        
+        public override int getValue(Color color)
+        {
+            return color == this.color ? BaseValue : -BaseValue;
+        }
+        
         public override List<Square> PossibleEatingMove()
         {
             this.GeneratePossibleMove();
@@ -41,7 +54,7 @@ namespace ChessGame.Models.Chess.piece
                 else break;
             }
             // all from this to the down
-            for (int iRow = row + 1; iRow < GameBoard.SIZE; iRow++)
+            for (int iRow = row + 1; iRow < GameBoard.Size; iRow++)
             {
                 Square square = board.GetSquare(new Coord(iRow, col));
                 if (square.isEmpty())
@@ -56,7 +69,7 @@ namespace ChessGame.Models.Chess.piece
                 else break;
             }
             // all from this to the right
-            for (int iCol = col + 1; iCol < GameBoard.SIZE; iCol++)
+            for (int iCol = col + 1; iCol < GameBoard.Size; iCol++)
             {
                 Square square = board.GetSquare(new Coord(row, iCol));
                 if (square.isEmpty())

@@ -41,6 +41,11 @@ namespace ChessGame.Models.Chess
             return null;
         }
 
+        public virtual int getValue(Color color)
+        {
+            return 0;
+        }
+
         public virtual bool isKing()
         {
             return false;

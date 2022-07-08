@@ -8,15 +8,24 @@ namespace ChessGame.Models.Chess
 {
     public class GameBoard
     {
-        public Square[][] squares { get; set; }
+        public RowSquare[] squares { get; set; }
         public Direction direction { get; set; }
-        public List<Piece> WhitePieces { get; } = new List<Piece>();
-        public List<Piece> BlackPieces { get; } = new List<Piece>();
-        public GameBoard(Direction direction)
+
+        public Board boardInfo { get; set; }
+        // public List<Piece> WhitePieces { get; } = new List<Piece>();
+        // public List<Piece> BlackPieces { get; } = new List<Piece>();
+
+        public Stack<History> Histories { get; } = new Stack<History>();
+
+
+        public int getTotalValue(Color color)
         {
-            this.direction = direction;
+            return squares.Sum(rowSquares => rowSquares.getValue(color));
         }
-        public const int SIZE = 8;
+
+        public const int Size = 8;
+
+
         /// <summary>
         /// Return null if coord has wrong value
         /// </summary>
@@ -33,27 +42,32 @@ namespace ChessGame.Models.Chess
             }
         }
 
-        /// <param name="board">the string[][] contains pieceCode; 
-        /// Must have size 8x8</param>
         public static GameBoard GetBoard(string[][] board, Direction direction)
         {
             // board must have size 8x8
             if (board.Length == 8)
             {
-                GameBoard result = new GameBoard(direction);
-                Square[][] squares = new Square[8][];
+                GameBoard result = new GameBoard
+                {
+                    direction = direction
+                };
+                RowSquare[] squares = new RowSquare[8];
                 for (int row = 0; row < 8; row++)
                 {
-                    squares[row] = new Square[8];
+                    squares[row] = new RowSquare();
                     if (board[row].Length == 8)
                     {
                         for (int col = 0; col < 8; col++)
-                        {// each element in board
-                            squares[row][col] = new Square(
+                        {
+                            // each element in board
+                            var square = new Square(
                                 board[row][col],
                                 new Coord(row, col),
                                 result
-                                );
+                            );
+                            squares[row][col] = square;
+                            // if (square.piece?.color == Color.Black) result.BlackPieces.Add(square.piece);
+                            // else if (square.piece?.color == Color.White) result.WhitePieces.Add(square.piece);
                         }
                     }
                     else
@@ -61,8 +75,8 @@ namespace ChessGame.Models.Chess
                         return null;
                     }
                 }
+
                 result.squares = squares;
-                //Console.WriteLine("Fine");
                 return result;
             }
             else
@@ -70,14 +84,61 @@ namespace ChessGame.Models.Chess
                 return null;
             }
         }
+
         public List<Piece> getOpponentPieces(Color ofColor)
         {
-            if (ofColor == Color.Black) return WhitePieces;
-            else if (ofColor == Color.White) return BlackPieces;
-            else
+            return getColorPieces((Color)(-(int)ofColor));
+        }
+
+        public List<Piece> getColorPieces(Color ofColor)
+        {
+            var pieces = new List<Piece>();
+            foreach (var rowSquare in squares)
             {
-                throw new Exception("getOpponentPieces has wrong param");
+                pieces = pieces.Concat(rowSquare.getColorPieces(ofColor)).ToList();
             }
+
+            return pieces;
+        }
+
+        public override string ToString()
+        {
+            return string.Join("\n", squares.Select(squares => squares));
+        }
+
+        public void undo()
+        {
+            try
+            {
+                var lastMove = Histories.Pop();
+                GetSquare(lastMove.CoordFrom).RemovePiece();
+                GetSquare(lastMove.CoordTo).RemovePiece();
+                GetSquare(lastMove.CoordFrom).SetPiece(lastMove.CoordFromPiece);
+                GetSquare(lastMove.CoordTo).SetPiece(lastMove.CoordToPiece);
+            }
+            catch (InvalidOperationException e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+
+        public void MovePiece(Coord from, Coord to)
+        {
+            Histories.Push(new History
+            {
+                CoordFrom = from,
+                CoordTo = to,
+                CoordFromPiece = GetSquare(from).piece,
+                CoordToPiece = GetSquare(to).piece
+            });
+            var chosenPiece = GetSquare(from)?.RemovePiece();
+            if (chosenPiece == null)
+            {
+                throw new NullReferenceException("chosenPiece is null");
+            }
+            GetSquare(to).RemovePiece();
+            GetSquare(from).RemovePiece();
+            GetSquare(to).SetPiece(chosenPiece);
         }
     }
 }

@@ -8,6 +8,7 @@ using ChessGame.Models;
 using ChessGame.Models.Chess;
 using ChessGame.Models.Chess.piece;
 using ChessGame.Data;
+using ChessGame.Service;
 using ChessGame.Signal;
 using Microsoft.AspNetCore.SignalR;
 
@@ -29,10 +30,13 @@ namespace ChessGame.Controllers
     {
         private readonly InMemoryDbContext _context;
         private readonly IHubContext<GameHub> _hubContext;
+        private readonly IBotHandler _botHandler;
         public BoardController(
+            IBotHandler botHandler,
             InMemoryDbContext context,
             IHubContext<GameHub> hubContext)
         {
+            _botHandler = botHandler;
             _context = context;
             _hubContext = hubContext;
         }
@@ -47,32 +51,6 @@ namespace ChessGame.Controllers
             piece.GeneratePossibleMove();
             return piece.possibleMoves.Select(square => square.coord).ToArray();
 
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<bool>> Move(BoardRequest request)
-        {
-            Direction direction = request.direction.ToLower() == "whitegodown" ? Direction.WhiteGodown : Direction.WhiteGoup;
-            GameBoard gameBoard = GameBoard.GetBoard(request.board, direction);
-
-            Piece piece = gameBoard.GetSquare(request.coordChosen).piece;
-            piece.GeneratePossibleMove();
-            if (piece.possibleMoves.Contains(gameBoard.GetSquare(request.coordClick)))
-            {
-                Board board = await _context.boards.FindAsync(request.boardId);
-                string opponentConnId = board.getOpponentIdentifier(request.userName);
-                _hubContext.Clients.Client(opponentConnId)
-                    .SendAsync(
-                    "OpponentMoving",
-                    request.coordChosen.getMindSymmetry(),
-                    request.coordClick.getMindSymmetry()
-                    );
-                return true;
-            }
-            else
-            {
-                return false;
-            }
         }
     }
 }

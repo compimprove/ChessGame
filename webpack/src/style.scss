@@ -217,10 +217,23 @@ div.list-board {
         fill: $secondary2;
     }
 
+    >label {
+        width: 92px;
+    }
+
     &:hover {
         >svg {
             fill: $primary1;
         }
+    }
+}
+
+.create-bot-board {
+    @extend .cell-board;
+    >label {
+        font-weight: bold;
+        color: $secondary2;
+        width: 82px;
     }
 }
 

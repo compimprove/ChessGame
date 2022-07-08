@@ -8,13 +8,22 @@ namespace ChessGame.Models.Chess.piece
 {
     public class King : Piece
     {
+        private readonly int BaseValue = 2000;
+
         public King(Color color, Square square) : base(color, square)
         {
         }
+        
+        
         public override List<Square> PossibleEatingMove()
         {
             this.GeneratePossibleMove();
             return this.possibleMoves;
+        }
+        
+        public override int getValue(Color color)
+        {
+            return color == this.color ? BaseValue : -BaseValue;
         }
         public override void GeneratePossibleMove()
         {
@@ -116,14 +125,7 @@ namespace ChessGame.Models.Chess.piece
         }
         public override string ToString()
         {
-            if (base.color == Color.Black)
-            {
-                return "bK";
-            }
-            else
-            {
-                return "wK";
-            }
+            return base.color.ToDescriptionString() + "K";
         }
     }
 }

@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace ChessGame.Models.Chess
 {
-    public struct Coord
+    public class Coord
     {
         public int row { get; set; }
         public int col { get; set; }
+
+        public Coord()
+        {
+        }
+
         public Coord(int newRow, int newCol)
         {
             row = newRow;
@@ -25,14 +31,28 @@ namespace ChessGame.Models.Chess
             return $"row: {row}, col: {col}";
         }
     }
+
     public enum Color
     {
-        Black = 0,
-        White = 1
+        [Description("b")] Black = -1,
+        [Description("w")] White = 1,
     }
+
     public enum Direction
     {
         WhiteGoup,
         WhiteGodown
+    }
+
+    public static class MyEnumExtensions
+    {
+        public static string ToDescriptionString(this Color val)
+        {
+            DescriptionAttribute[] attributes = (DescriptionAttribute[])val
+                .GetType()
+                .GetField(val.ToString())
+                ?.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            return attributes != null && attributes.Length > 0 ? attributes[0].Description : string.Empty;
+        }
     }
 }

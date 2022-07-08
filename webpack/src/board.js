@@ -1,4 +1,4 @@
-﻿import React, { Component } from 'react';
+﻿import React, {Component} from 'react';
 import Square from './square';
 import King from './piece/king';
 import Queen from './piece/queen';
@@ -8,13 +8,14 @@ import Rook from './piece/rook';
 import Knight from './piece/knight';
 import SquareC from './squareC';
 import MovingError from './errors/movingError';
-import { User, UserThinking, UserWaiting } from './user';
+import {User, UserThinking, UserWaiting} from './user';
 import {debounce} from "lodash";
 
 class Board extends Component {
     constructor(props) {
         super(props);
         this.boardRef = React.createRef();
+        this.movingQueue = [];
         this.state = {
             board: null,
             flag: false,
@@ -40,12 +41,30 @@ class Board extends Component {
         this.removeHighlight = this.removeHighlight.bind(this);
         this.hightLight = this.hightLight.bind(this);
     }
+    
+    moveInQueue() {
+        if (!this._inMoveInQueue) {
+            this._inMoveInQueue = true;
+            this._moveAllInQueue();
+        }
+    }
+
+    async _moveAllInQueue() {
+        if (this.movingQueue.length > 0) {
+            let {userName, coordChosen, coordClick} = this.movingQueue.shift()
+            this.removeHighlight();
+            await this.move(coordChosen, coordClick);
+            this.setState({userTurn: userName !== this.props.userName});
+            this._moveAllInQueue();
+        } else {
+            this._inMoveInQueue = false;
+        }
+    }
 
     componentDidMount() {
-        this.props.connection.on("OpponentMoving", (coordChosen, coordClick) => {
-            this.removeHighlight();
-            this.move(coordChosen, coordClick);
-            this.setState({ userTurn: true });
+        this.props.connection.on("MovingPiece", (userName, coordChosen, coordClick) => {
+            this.movingQueue.push({userName, coordChosen, coordClick});
+            this.moveInQueue();
         })
     }
 
@@ -74,8 +93,7 @@ class Board extends Component {
             this.setState({
                 flag: false
             })
-        }
-        else {
+        } else {
             this.setState({
                 flag: true
             })
@@ -107,8 +125,7 @@ class Board extends Component {
         if (this.state.userTurn) {
             if (havePiece && piece.color == this.userColor) {
                 await this.handleGenerateMove(coord);
-            }
-            else {
+            } else {
                 await this.handleMove(coord);
             }
         } else {
@@ -163,8 +180,9 @@ class Board extends Component {
             function findCoord(coordResult) {
                 return (coordResult.row == coord.row && coordResult.col == coord.col);
             }
+
             if (this.hightLightCoord.findIndex(findCoord) >= 0) {
-                await this.movePiece(this.coordChosen, coord);
+                this.movePiece(this.coordChosen, coord);
             } else {
                 this.removeHighlight();
             }
@@ -175,7 +193,7 @@ class Board extends Component {
         }
     }
 
-    async movePiece(coordChosen, coordClick) {
+    movePiece(coordChosen, coordClick) {
         let data;
         let direction = '';
         if (this.userColor === "black")
@@ -193,27 +211,29 @@ class Board extends Component {
             direction: direction,
             userName: this.props.userName
         }
-
-        let response = await fetch(this.apiMove, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data),
-        });
-        if (response.status === 200) {
-            let result = await response.json();
-            if (result) {
-                this.setState({ userTurn: false });
-                this.removeHighlight();
-                await this.move(coordChosen, coordClick);
-            } else {
-                throw MovingError();
-            }
-        } else {
-            throw MovingError();
-        }
+ 
+        this.props.connection.invoke("MovingPiece", data);
+        //
+        // let response = await fetch(this.apiMove, {
+        //     method: 'POST',
+        //     headers: {
+        //         'Accept': 'application/json',
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify(data),
+        // });
+        // if (response.status === 200) {
+        //     let result = await response.json();
+        //     if (result) {
+        //         this.setState({userTurn: false});
+        //         this.removeHighlight();
+        //         await this.move(coordChosen, coordClick);
+        //     } else {
+        //         throw MovingError();
+        //     }
+        // } else {
+        //     throw MovingError();
+        // }
 
     }
 
@@ -224,7 +244,7 @@ class Board extends Component {
                 to: coordClick
             }
         });
-        await new Promise(r => setTimeout(r, 400));
+        await new Promise(r => setTimeout(r, 500));
         let piece = this.state.board[coordChosen.row][coordChosen.col].removePiece();
         this.state.board[coordClick.row][coordClick.col].removePiece();
         this.state.board[coordClick.row][coordClick.col].addPiece(piece);
@@ -244,15 +264,15 @@ class Board extends Component {
         let user;
         if (this.props.opponentName) {
             if (this.state.userTurn) {
-                opponent = <User name={this.props.opponentName} />;
-                user = <UserThinking name={this.props.userName} />
+                opponent = <User name={this.props.opponentName}/>;
+                user = <UserThinking name={this.props.userName}/>
             } else {
-                opponent = <UserThinking name={this.props.opponentName} />;
-                user = <User name={this.props.userName} />
+                opponent = <UserThinking name={this.props.opponentName}/>;
+                user = <User name={this.props.userName}/>
             }
         } else {
-            opponent = <UserWaiting />;
-            user = <User name={this.props.userName} />
+            opponent = <UserWaiting/>;
+            user = <User name={this.props.userName}/>
         }
         return (
             <div className='container' onClick={this.onClickContainer} ref={this.boardRef}>
@@ -331,9 +351,9 @@ function InitialBoard(userColor, otherColor) {
         board[i] = [];
         for (let j = 0; j < 8; j++) {
             if ((i - j) % 2 == 0)
-                board[i][j] = new SquareC("white", pieceRow1[j], { row: i, col: j });
+                board[i][j] = new SquareC("white", pieceRow1[j], {row: i, col: j});
             else
-                board[i][j] = new SquareC("black", pieceRow1[j], { row: i, col: j });
+                board[i][j] = new SquareC("black", pieceRow1[j], {row: i, col: j});
         }
     }
     for (let i = 1; i < 2; i++) {
@@ -341,18 +361,18 @@ function InitialBoard(userColor, otherColor) {
         for (let j = 0; j < 8; j++) {
             let pawn = new Pawn(otherColor, board)
             if ((i - j) % 2 == 0)
-                board[i][j] = new SquareC("white", pawn, { row: i, col: j });
+                board[i][j] = new SquareC("white", pawn, {row: i, col: j});
             else
-                board[i][j] = new SquareC("black", pawn, { row: i, col: j });
+                board[i][j] = new SquareC("black", pawn, {row: i, col: j});
         }
     }
     for (let i = 2; i < 6; i++) {
         board[i] = [];
         for (let j = 0; j < 8; j++) {
             if ((i - j) % 2 == 0)
-                board[i][j] = new SquareC("white", null, { row: i, col: j });
+                board[i][j] = new SquareC("white", null, {row: i, col: j});
             else
-                board[i][j] = new SquareC("black", null, { row: i, col: j });
+                board[i][j] = new SquareC("black", null, {row: i, col: j});
         }
     }
     for (let i = 6; i < 7; i++) {
@@ -360,9 +380,9 @@ function InitialBoard(userColor, otherColor) {
         for (let j = 0; j < 8; j++) {
             let pawn = new Pawn(userColor, board, 'up')
             if ((i - j) % 2 == 0)
-                board[i][j] = new SquareC("white", pawn, { row: i, col: j });
+                board[i][j] = new SquareC("white", pawn, {row: i, col: j});
             else
-                board[i][j] = new SquareC("black", pawn, { row: i, col: j });
+                board[i][j] = new SquareC("black", pawn, {row: i, col: j});
         }
     }
 
@@ -370,9 +390,9 @@ function InitialBoard(userColor, otherColor) {
         board[i] = [];
         for (let j = 0; j < 8; j++) {
             if ((i - j) % 2 == 0)
-                board[i][j] = new SquareC("white", pieceRow7[j], { row: i, col: j });
+                board[i][j] = new SquareC("white", pieceRow7[j], {row: i, col: j});
             else
-                board[i][j] = new SquareC("black", pieceRow7[j], { row: i, col: j });
+                board[i][j] = new SquareC("black", pieceRow7[j], {row: i, col: j});
         }
     }
     return board;

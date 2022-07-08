@@ -34,7 +34,6 @@ class Square extends Component {
         }
         return (
             <button ref={this.buttonRef} className={"square " + `${this.props.color} ${highlightClass}`} onClick={this.handleClick}>
-                {/* {`${this.props.coord.row}-${this.props.coord.col}`} */}
                 {this.props.piece && <img style={style} src={this.props.piece.imageUrl()} />}
             </button>
         )

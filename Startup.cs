@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using ChessGame.Signal;
 using ChessGame.Data;
+using ChessGame.Service;
 
 
 namespace ChessGame
@@ -22,6 +23,7 @@ namespace ChessGame
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSingleton<IBotHandler, BotHandler>();
             services.AddControllersWithViews();
             services.AddSignalR();
             services.AddDbContext<InMemoryDbContext>(opt => opt.UseInMemoryDatabase("ChessGame"));
