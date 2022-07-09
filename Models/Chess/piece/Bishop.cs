@@ -35,12 +35,7 @@ namespace ChessGame.Models.Chess.piece
         {
             return base.GetValue(color, BaseValue, BishopValue, BishopValueReverse);
         }
-
-        public override List<Square> PossibleEatingMove()
-        {
-            GeneratePossibleMove();
-            return possibleMoves;
-        }
+        
 
         public override void GeneratePossibleMove()
         {

@@ -34,12 +34,6 @@ namespace ChessGame.Models.Chess.piece
             return base.color.ToDescriptionString() + "R";
         }
 
-        public override List<Square> PossibleEatingMove()
-        {
-            this.GeneratePossibleMove();
-            return this.possibleMoves;
-        }
-
         public override void GeneratePossibleMove()
         {
             Square thisSquare = base.square;

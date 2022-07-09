@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using ChessGame.Models.Chess;
 using ChessGame.Data;
+using ChessGame.Models.Chess.piece;
 using ChessGame.Service;
 using ChessGame.Signal;
 using Microsoft.AspNetCore.SignalR;
@@ -18,6 +21,7 @@ namespace ChessGame.Controllers
 
         public string userName { get; set; }
     }
+
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class BoardController : ControllerBase
@@ -25,6 +29,7 @@ namespace ChessGame.Controllers
         private readonly InMemoryDbContext _context;
         private readonly IHubContext<GameHub> _hubContext;
         private readonly IBotHandler _botHandler;
+
         public BoardController(
             IBotHandler botHandler,
             InMemoryDbContext context,
@@ -36,15 +41,28 @@ namespace ChessGame.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Coord[]> GeneratePossibleMove(BoardRequest request)
+        public ActionResult<Dictionary<string, Coord[]>> GeneratePossibleMove(BoardRequest request)
         {
-            Direction direction = request.direction.ToLower() == "whitegodown" ? Direction.WhiteGoDown : Direction.WhiteGoUp;
+            Direction direction = request.direction.ToLower() == "whitegodown"
+                ? Direction.WhiteGoDown
+                : Direction.WhiteGoUp;
             GameBoard board = GameBoard.GetBoard(request.board, direction);
 
             Piece piece = board.GetSquare(request.coordClick).piece;
             piece.GeneratePossibleMove();
-            return piece.possibleMoves.Select(square => square.coord).ToArray();
+            if (piece is King king)
+            {
+                return new Dictionary<string, Coord[]>()
+                {
+                    { "possibleMoves", king.possibleMoves.Select(square => square.coord).ToArray() },
+                    { "kingDangerMoves", king.GenerateDangerMove() }
+                };
+            }
 
+            return new Dictionary<string, Coord[]>()
+            {
+                { "possibleMoves", piece.possibleMoves.Select(square => square.coord).ToArray() }
+            };
         }
     }
 }

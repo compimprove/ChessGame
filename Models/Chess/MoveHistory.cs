@@ -1,6 +1,6 @@
 ﻿namespace ChessGame.Models.Chess
 {
-    public struct History
+    public struct MoveHistory
     {
         public Coord CoordFrom { get; set; }
         public Coord CoordTo { get; set; }

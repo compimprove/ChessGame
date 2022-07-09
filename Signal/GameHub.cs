@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ChessGame.Data;
 using ChessGame.Models;
@@ -91,10 +92,10 @@ namespace ChessGame.Signal
                 bool userTurn = true;
 
                 _context.Add(board);
-                await _context.SaveChangesAsync();
-                await Clients.Caller.SendAsync("JoinedBoard", board, userTurn);
+                await _context.SaveChangesAsync().ConfigureAwait(false);
+                await Clients.Caller.SendAsync("JoinedBoard", board, userTurn).ConfigureAwait(false);
                 List<Board> boards = await _context.boards.ToListAsync();
-                await Clients.All.SendAsync("GetBoards", boards);
+                await Clients.All.SendAsync("GetBoards", boards).ConfigureAwait(false);
             }
         }
 
@@ -112,24 +113,40 @@ namespace ChessGame.Signal
                 Board board = await _context.boards.FindAsync(request.boardId);
                 gameBoard.boardInfo = board;
                 var opponentConnId = board.getOpponentIdentifier(request.userName);
-                var opponentName = board.getOpponentName(request.userName);
-                Clients.Caller.SendAsync("MovingPiece",
+                var kingDangerMove = new List<Coord>();
+                gameBoard.MovePiece(request.coordChosen, request.coordClick);
+
+                if (gameBoard.blackKing.InDanger())
+                {
+                    kingDangerMove.Add(gameBoard.blackKing.Coord);
+                }
+
+                if (gameBoard.whiteKing.InDanger())
+                {
+                    kingDangerMove.Add(gameBoard.whiteKing.Coord);
+                }
+
+                await Clients.Caller.SendAsync("MovingPiece",
                     request.userName,
                     request.coordChosen,
-                    request.coordClick);
+                    request.coordClick,
+                    kingDangerMove).ConfigureAwait(false);
+
                 if (opponentConnId == "bot")
                 {
-                    gameBoard.MovePiece(request.coordChosen, request.coordClick);
-                    _botHandler.HandleMove(gameBoard, board);
-                    return;
+                    await _botHandler.HandleMove(gameBoard, board).ConfigureAwait(false);
                 }
-                Clients.Client(opponentConnId)
-                    .SendAsync(
-                        "MovingPiece",
-                        opponentName,
-                        request.coordChosen.getMindSymmetry(),
-                        request.coordClick.getMindSymmetry()
-                    );
+                else
+                {
+                    await Clients.Client(opponentConnId)
+                        .SendAsync(
+                            "MovingPiece",
+                            request.userName,
+                            request.coordChosen.getMindSymmetry(),
+                            request.coordClick.getMindSymmetry(),
+                            kingDangerMove.Select(move => move.getMindSymmetry())
+                        ).ConfigureAwait(false);
+                }
             }
         }
 

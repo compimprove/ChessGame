@@ -8,6 +8,9 @@ namespace ChessGame.Models.Chess
     public class Piece
     {
         public List<Square> possibleMoves { get; } = new List<Square>();
+
+        public Coord Coord => square?.coord;
+
         public Color color { get; set; }
         public Square square { get; set; }
 
@@ -32,15 +35,23 @@ namespace ChessGame.Models.Chess
         public virtual void GeneratePossibleMove()
         {
         }
-
+        
         public virtual List<Square> PossibleEatingMove()
         {
-            return null;
+            GeneratePossibleMove();
+            return possibleMoves;
         }
 
         public virtual int GetValue(Color color)
         {
             return 0;
+        }
+
+        protected bool IsGoingUp()
+        {
+            GameBoard board = square.board;
+            return (board.direction == Direction.WhiteGoUp && color == Color.White) ||
+                   (board.direction == Direction.WhiteGoDown && color == Color.Black);
         }
 
         public virtual int GetValue(Color color, int baseValue, int[][] boardValue, int[][] boardValueReverse)
@@ -60,11 +71,6 @@ namespace ChessGame.Models.Chess
             var totalValue = baseValue + extraValue;
 
             return color == this.color ? totalValue : -totalValue;
-        }
-
-        public virtual bool isKing()
-        {
-            return false;
         }
 
         public Color opponentColor()

@@ -1,24 +1,25 @@
 ﻿using System.Linq;
 using System;
 using System.Collections.Generic;
+using ChessGame.Models.Chess.piece;
 
 namespace ChessGame.Models.Chess
 {
     public class GameBoard
     {
-        public RowSquare[] squares { get; set; }
-        public Direction direction { get; set; }
+        private RowSquare[] boardSquares { get; set; }
+        public King whiteKing { get; private set; }
+        public King blackKing { get; private set; }
+
+        public Direction direction { get; private set; }
 
         public Board boardInfo { get; set; }
-        // public List<Piece> WhitePieces { get; } = new List<Piece>();
-        // public List<Piece> BlackPieces { get; } = new List<Piece>();
 
-        public Stack<History> Histories { get; } = new Stack<History>();
+        public Stack<MoveHistory[]> MovingHistories { get; } = new Stack<MoveHistory[]>();
 
-
-        public int getTotalValue(Color color)
+        public int GetTotalValue(Color color)
         {
-            return squares.Sum(rowSquares => rowSquares.GetValue(color));
+            return boardSquares.Sum(rowSquares => rowSquares.GetValue(color));
         }
 
         public const int Size = 8;
@@ -32,7 +33,7 @@ namespace ChessGame.Models.Chess
             if (coord.row >= 0 && coord.row <= 7 &&
                 coord.col >= 0 && coord.col <= 7)
             {
-                return this.squares[coord.row][coord.col];
+                return this.boardSquares[coord.row][coord.col];
             }
             else
             {
@@ -63,9 +64,17 @@ namespace ChessGame.Models.Chess
                                 new Coord(row, col),
                                 result
                             );
+                            if (board[row][col] == "whiteK")
+                            {
+                                result.whiteKing = (King)square.piece;
+                            }
+
+                            if (board[row][col] == "blackK")
+                            {
+                                result.blackKing = (King)square.piece;
+                            }
+
                             squares[row][col] = square;
-                            // if (square.piece?.color == Color.Black) result.BlackPieces.Add(square.piece);
-                            // else if (square.piece?.color == Color.White) result.WhitePieces.Add(square.piece);
                         }
                     }
                     else
@@ -74,7 +83,7 @@ namespace ChessGame.Models.Chess
                     }
                 }
 
-                result.squares = squares;
+                result.boardSquares = squares;
                 return result;
             }
             else
@@ -91,7 +100,7 @@ namespace ChessGame.Models.Chess
         public List<Piece> getColorPieces(Color ofColor)
         {
             var pieces = new List<Piece>();
-            foreach (var rowSquare in squares)
+            foreach (var rowSquare in boardSquares)
             {
                 pieces = pieces.Concat(rowSquare.getColorPieces(ofColor)).ToList();
             }
@@ -101,18 +110,21 @@ namespace ChessGame.Models.Chess
 
         public override string ToString()
         {
-            return string.Join("\n", squares.Select(squares => squares));
+            return string.Join("\n", boardSquares.Select(squares => squares));
         }
 
         public void undo()
         {
             try
             {
-                var lastMove = Histories.Pop();
-                GetSquare(lastMove.CoordFrom).RemovePiece();
-                GetSquare(lastMove.CoordTo).RemovePiece();
-                GetSquare(lastMove.CoordFrom).SetPiece(lastMove.CoordFromPiece);
-                GetSquare(lastMove.CoordTo).SetPiece(lastMove.CoordToPiece);
+                var lastMoves = MovingHistories.Pop();
+                foreach (var lastMove in lastMoves)
+                {
+                    GetSquare(lastMove.CoordFrom).RemovePiece();
+                    GetSquare(lastMove.CoordTo).RemovePiece();
+                    GetSquare(lastMove.CoordFrom).SetPiece(lastMove.CoordFromPiece);
+                    GetSquare(lastMove.CoordTo).SetPiece(lastMove.CoordToPiece);
+                }
             }
             catch (InvalidOperationException e)
             {
@@ -122,21 +134,30 @@ namespace ChessGame.Models.Chess
 
         public void MovePiece(Coord from, Coord to)
         {
-            Histories.Push(new History
+            MovePieces(new (Coord, Coord)[] { (from, to) });
+        }
+
+        public void MovePieces((Coord, Coord)[] moves)
+        {
+            MovingHistories.Push(moves.Select(move => new MoveHistory
             {
-                CoordFrom = from,
-                CoordTo = to,
-                CoordFromPiece = GetSquare(from).piece,
-                CoordToPiece = GetSquare(to).piece
-            });
-            var chosenPiece = GetSquare(from)?.RemovePiece();
-            if (chosenPiece == null)
+                CoordFrom = move.Item1,
+                CoordTo = move.Item2,
+                CoordFromPiece = GetSquare(move.Item1).piece,
+                CoordToPiece = GetSquare(move.Item2).piece
+            }).ToArray());
+            foreach (var (from, to) in moves)
             {
-                throw new NullReferenceException("chosenPiece is null");
+                var chosenPiece = GetSquare(from)?.RemovePiece();
+                if (chosenPiece == null)
+                {
+                    throw new NullReferenceException("chosenPiece is null");
+                }
+
+                GetSquare(to).RemovePiece();
+                GetSquare(from).RemovePiece();
+                GetSquare(to).SetPiece(chosenPiece);
             }
-            GetSquare(to).RemovePiece();
-            GetSquare(from).RemovePiece();
-            GetSquare(to).SetPiece(chosenPiece);
         }
     }
 }

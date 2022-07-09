@@ -24,12 +24,6 @@ namespace ChessGame.Models.Chess.piece
         {
         }
 
-        public override List<Square> PossibleEatingMove()
-        {
-            GeneratePossibleMove();
-            return possibleMoves;
-        }
-
         public override int GetValue(Color color)
         {
             return base.GetValue(color, BaseValue, KnightValue, KnightValueReverse);

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace ChessGame.Models.Chess.piece
 {
@@ -38,8 +39,7 @@ namespace ChessGame.Models.Chess.piece
             // than Pawn's color
 
             // This color is going up
-            if ((board.direction == Direction.WhiteGoUp && base.color == Color.White) ||
-                (board.direction == Direction.WhiteGoDown && base.color == Color.Black))
+            if (IsGoingUp())
             {
                 Coord c1 = new Coord(row - 1, col - 1);
                 Coord c2 = new Coord(row - 1, col + 1);
@@ -53,8 +53,8 @@ namespace ChessGame.Models.Chess.piece
                 possibleMoves.Add(board.GetSquare(c1));
                 possibleMoves.Add(board.GetSquare(c2));
             }
-
-            return possibleMoves;
+            
+            return possibleMoves.Where(p => p != null).ToList();
         }
 
         public override int GetValue(Color color)
@@ -64,11 +64,10 @@ namespace ChessGame.Models.Chess.piece
 
         public override void GeneratePossibleMove()
         {
-            Square thisSquare = base.square;
-            if (thisSquare == null) return;
+            if (square == null) return;
 
-            int row = thisSquare.coord.row;
-            int col = thisSquare.coord.col;
+            int row = square.coord.row;
+            int col = square.coord.col;
             GameBoard board = square.board;
             possibleMoves.Clear();
 
@@ -76,8 +75,7 @@ namespace ChessGame.Models.Chess.piece
             // than Pawn's color
 
             // This color is going up
-            if ((board.direction == Direction.WhiteGoUp && base.color == Color.White) ||
-                (board.direction == Direction.WhiteGoDown && base.color == Color.Black))
+            if (IsGoingUp())
             {
                 Square ahead = board.GetSquare(new Coord(row - 1, col));
 
@@ -86,7 +84,7 @@ namespace ChessGame.Models.Chess.piece
                     if (ahead.isEmpty())
                     {
                         possibleMoves.Add(ahead);
-                        if (thisSquare.coord.row == 6 && board.GetSquare(new Coord(4, col)).isEmpty())
+                        if (square.coord.row == 6 && board.GetSquare(new Coord(4, col)).isEmpty())
                         {
                             possibleMoves.Add(board.GetSquare(new Coord(4, col)));
                         }
@@ -114,7 +112,7 @@ namespace ChessGame.Models.Chess.piece
                     if (ahead.isEmpty())
                     {
                         possibleMoves.Add(ahead);
-                        if (thisSquare.coord.row == 1 && board.GetSquare(new Coord(3, col)).isEmpty())
+                        if (square.coord.row == 1 && board.GetSquare(new Coord(3, col)).isEmpty())
                         {
                             possibleMoves.Add(board.GetSquare(new Coord(3, col)));
                         }

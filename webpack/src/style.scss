@@ -165,8 +165,9 @@ button.canKilled {
     border: 5px solid #1A4B09;
 }
 
-button.kingDangered {
-    background-color: darkred;
+button.inDangered {
+    background-color: #be1512 !important;
+    border: 5px solid #1A4B09;
 }
 
 div.list-board {

@@ -12,11 +12,11 @@ namespace ChessGame.Service
 {
     public class BotHandler : IBotHandler
     {
-        private const int MaxDept = 4;
+        private const int MaxDept = 3;
         private readonly IHubContext<GameHub> _hubContext;
         private readonly ILogger _logger;
         private long _loop = 0;
-        private int[] _values;
+        private int[] _bestValues;
 
         public BotHandler(
             IHubContext<GameHub> hubContext,
@@ -24,7 +24,6 @@ namespace ChessGame.Service
         {
             _hubContext = hubContext;
             _logger = logger;
-            _values = new int[MaxDept];
         }
 
         private Color getBotColor(Board board)
@@ -42,30 +41,31 @@ namespace ChessGame.Service
             _logger.LogTrace("----------------------------");
             _logger.LogTrace($"Dept: 0 -------------");
             _loop = 0;
-            var bestValue = int.MinValue;
+            _bestValues = new int[MaxDept];
+            _bestValues[0] = int.MinValue;
             var results = new List<(Coord, Coord)>();
             var botColor = getBotColor(board);
             var botPieces = gameBoard.getColorPieces(getBotColor(board));
             foreach (var piece in botPieces)
             {
                 piece.GeneratePossibleMove();
-                var pieceOriginCord = piece.square.coord;
+                var pieceOriginCoord = piece.square.coord;
                 var possibleMoves = piece.possibleMoves.Select(square => square.coord).ToArray();
                 foreach (var possibleMove in possibleMoves)
                 {
                     _logger.LogTrace($"--------------- {piece} ------------------");
-                    gameBoard.MovePiece(pieceOriginCord, possibleMove);
+                    gameBoard.MovePiece(pieceOriginCoord, possibleMove);
                     _logger.LogTrace(gameBoard.ToString());
                     var value = GetValue(gameBoard, 1, false, botColor);
-                    if (bestValue < value)
+                    if (_bestValues[0] < value)
                     {
-                        bestValue = value;
+                        _bestValues[0] = value;
                         results.Clear();
-                        results.Add((pieceOriginCord, possibleMove));
+                        results.Add((pieceOriginCoord, possibleMove));
                     }
-                    else if (bestValue == value)
+                    else if (_bestValues[0] == value)
                     {
-                        results.Add((pieceOriginCord, possibleMove));
+                        results.Add((pieceOriginCoord, possibleMove));
                     }
 
                     gameBoard.undo();
@@ -80,7 +80,7 @@ namespace ChessGame.Service
         private int GetValue(GameBoard gameBoard, int dept, bool botTurn, Color botColor)
         {
             _loop++;
-            if (dept == MaxDept) return gameBoard.getTotalValue(botColor);
+            if (dept == MaxDept) return gameBoard.GetTotalValue(botColor);
             var allPieces = botTurn
                 ? gameBoard.getColorPieces(botColor)
                 : gameBoard.getOpponentPieces(botColor);
@@ -122,7 +122,7 @@ namespace ChessGame.Service
                 var end = DateTime.Now;
                 _logger.LogInformation("Loop: {loop}-Time: {time}---\n{board}", _loop, (end - start).ToString(),
                     gameBoard.ToString());
-                MovePiece(board, coordChosen, coordMoveTo);
+                MovePiece(gameBoard, board, coordChosen, coordMoveTo);
             }
             catch (Exception e)
             {
@@ -130,9 +130,22 @@ namespace ChessGame.Service
             }
         }
 
-        private void MovePiece(Board board, Coord coordFrom, Coord coordTo)
+        private void MovePiece(GameBoard gameBoard, Board board, Coord coordFrom, Coord coordTo)
         {
-            _hubContext.Clients.Client(getUserIdentifier(board)).SendAsync("MovingPiece", "bot", coordFrom, coordTo);
+            var kingDangerMove = new List<Coord>();
+
+            if (gameBoard.blackKing.InDanger())
+            {
+                kingDangerMove.Add(gameBoard.blackKing.Coord);
+            }
+
+            if (gameBoard.whiteKing.InDanger())
+            {
+                kingDangerMove.Add(gameBoard.whiteKing.Coord);
+            }
+
+            _hubContext.Clients.Client(getUserIdentifier(board))
+                .SendAsync("MovingPiece", "bot", coordFrom, coordTo, kingDangerMove);
         }
     }
 }

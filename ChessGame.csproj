@@ -32,4 +32,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Models\Chess\Move.cs" />
+  </ItemGroup>
+
 </Project>
