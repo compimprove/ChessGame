@@ -38,7 +38,7 @@ namespace ChessGame.Controllers
         [HttpPost]
         public ActionResult<Coord[]> GeneratePossibleMove(BoardRequest request)
         {
-            Direction direction = request.direction.ToLower() == "whitegodown" ? Direction.WhiteGodown : Direction.WhiteGoup;
+            Direction direction = request.direction.ToLower() == "whitegodown" ? Direction.WhiteGoDown : Direction.WhiteGoUp;
             GameBoard board = GameBoard.GetBoard(request.board, direction);
 
             Piece piece = board.GetSquare(request.coordClick).piece;

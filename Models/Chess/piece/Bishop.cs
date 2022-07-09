@@ -1,21 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace ChessGame.Models.Chess.piece
 {
     public class Bishop : Piece
     {
-        private readonly int BaseValue = 330;
+        private const int BaseValue = 330;
 
-        public Bishop(Color color, Square square) : base(color, square)
-        {
-        }
-
-        public override string ToString()
-        {
-            return color.ToDescriptionString() + "B";
-        }
-
-        private readonly int[][] BishopValueWhite =
+        private static readonly int[][] BishopValue =
         {
             new[] { -50, -40, -30, -30, -30, -30, -40, -50 },
             new[] { -40, -20, 0, 0, 0, 0, -20, -40 },
@@ -27,10 +19,21 @@ namespace ChessGame.Models.Chess.piece
             new[] { -50, -40, -30, -30, -30, -30, -40, -50 }
         };
 
+        private static readonly int[][] BishopValueReverse = Reverse(BishopValue);
 
-        public override int getValue(Color color)
+        public Bishop(Color color, Square square) : base(color, square)
         {
-            return color == this.color ? BaseValue : -BaseValue;
+        }
+
+        public override string ToString()
+        {
+            return color.ToDescriptionString() + "B";
+        }
+
+
+        public override int GetValue(Color color)
+        {
+            return base.GetValue(color, BaseValue, BishopValue, BishopValueReverse);
         }
 
         public override List<Square> PossibleEatingMove()

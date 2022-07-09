@@ -116,9 +116,12 @@ namespace ChessGame.Service
             {
                 await Task.Delay(100);
                 _logger.LogInformation("Input-----------------------\n{board}", gameBoard.ToString());
+                var start = DateTime.Now;
                 var (coordChosen, coordMoveTo) = Process(gameBoard, board);
                 gameBoard.MovePiece(coordChosen, coordMoveTo);
-                _logger.LogInformation("Output---Loop: {loop}--------\n{board}",_loop, gameBoard.ToString());
+                var end = DateTime.Now;
+                _logger.LogInformation("Loop: {loop}-Time: {time}---\n{board}", _loop, (end - start).ToString(),
+                    gameBoard.ToString());
                 MovePiece(board, coordChosen, coordMoveTo);
             }
             catch (Exception e)

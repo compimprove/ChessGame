@@ -2,14 +2,28 @@
 
 namespace ChessGame.Models.Chess.piece
 {
-
     public class Pawn : Piece
     {
         private readonly int BaseValue = 100;
 
+        private static readonly int[][] PawnValue =
+        {
+            new[] { 0, 0, 0, 0, 0, 0, 0, 0 },
+            new[] { 50, 50, 50, 50, 50, 50, 50, 50 },
+            new[] { 10, 10, 20, 30, 30, 20, 10, 10 },
+            new[] { 5, 5, 10, 25, 25, 10, 5, 5 },
+            new[] { 0, 0, 0, 20, 20, 0, 0, 0 },
+            new[] { 5, -5, -10, 0, 0, -10, -5, 5 },
+            new[] { 5, 10, 10, -20, -20, 10, 10, 5 },
+            new[] { 0, 0, 0, 0, 0, 0, 0, 0 }
+        };
+
+        private static readonly int[][] PawnValueReverse = Reverse(PawnValue);
+
         public Pawn(Color color, Square square) : base(color, square)
         {
         }
+
         public override List<Square> PossibleEatingMove()
         {
             List<Square> possibleMoves = new List<Square>();
@@ -24,26 +38,30 @@ namespace ChessGame.Models.Chess.piece
             // than Pawn's color
 
             // This color is going up
-            if ((board.direction == Direction.WhiteGoup && base.color == Color.White) || (board.direction == Direction.WhiteGodown && base.color == Color.Black))
+            if ((board.direction == Direction.WhiteGoUp && base.color == Color.White) ||
+                (board.direction == Direction.WhiteGoDown && base.color == Color.Black))
             {
                 Coord c1 = new Coord(row - 1, col - 1);
                 Coord c2 = new Coord(row - 1, col + 1);
                 possibleMoves.Add(board.GetSquare(c1));
                 possibleMoves.Add(board.GetSquare(c2));
             }
-            else   // This color is going down
+            else // This color is going down
             {
                 Coord c1 = new Coord(row + 1, col - 1);
                 Coord c2 = new Coord(row + 1, col + 1);
                 possibleMoves.Add(board.GetSquare(c1));
                 possibleMoves.Add(board.GetSquare(c2));
             }
+
             return possibleMoves;
         }
-        public override int getValue(Color color)
+
+        public override int GetValue(Color color)
         {
-            return color == this.color ? BaseValue : -BaseValue;
+            return base.GetValue(color, BaseValue, PawnValue, PawnValueReverse);
         }
+
         public override void GeneratePossibleMove()
         {
             Square thisSquare = base.square;
@@ -58,7 +76,8 @@ namespace ChessGame.Models.Chess.piece
             // than Pawn's color
 
             // This color is going up
-            if ((board.direction == Direction.WhiteGoup && base.color == Color.White) || (board.direction == Direction.WhiteGodown && base.color == Color.Black))
+            if ((board.direction == Direction.WhiteGoUp && base.color == Color.White) ||
+                (board.direction == Direction.WhiteGoDown && base.color == Color.Black))
             {
                 Square ahead = board.GetSquare(new Coord(row - 1, col));
 
@@ -72,6 +91,7 @@ namespace ChessGame.Models.Chess.piece
                             possibleMoves.Add(board.GetSquare(new Coord(4, col)));
                         }
                     }
+
                     // left or right ahead
                     Coord c1 = new Coord(row - 1, col - 1);
                     Coord c2 = new Coord(row - 1, col + 1);
@@ -79,13 +99,14 @@ namespace ChessGame.Models.Chess.piece
                     {
                         possibleMoves.Add(board.GetSquare(c1));
                     }
+
                     if (board.GetSquare(c2)?.piece?.opponentColor() == base.color)
                     {
                         possibleMoves.Add(board.GetSquare(c2));
                     }
                 }
             }
-            else   // This color is going down
+            else // This color is going down
             {
                 Square ahead = board.GetSquare(new Coord(row + 1, col));
                 if (ahead != null)
@@ -98,6 +119,7 @@ namespace ChessGame.Models.Chess.piece
                             possibleMoves.Add(board.GetSquare(new Coord(3, col)));
                         }
                     }
+
                     // left or right ahead
                     Coord c1 = new Coord(row + 1, col - 1);
                     Coord c2 = new Coord(row + 1, col + 1);
@@ -105,6 +127,7 @@ namespace ChessGame.Models.Chess.piece
                     {
                         possibleMoves.Add(board.GetSquare(c1));
                     }
+
                     if (board.GetSquare(c2)?.piece?.opponentColor() == base.color)
                     {
                         possibleMoves.Add(board.GetSquare(c2));
@@ -112,7 +135,7 @@ namespace ChessGame.Models.Chess.piece
                 }
             }
         }
-        
+
         public override string ToString()
         {
             return base.color.ToDescriptionString() + "P";

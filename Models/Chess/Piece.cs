@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using ChessGame.Models.Chess.piece;
 
 namespace ChessGame.Models.Chess
 {
-
     public class Piece
     {
         public List<Square> possibleMoves { get; } = new List<Square>();
@@ -27,7 +27,6 @@ namespace ChessGame.Models.Chess
             //        square.board.WhitePieces.Add(this);
             //    else throw new Exception("Piece color is wrong");
             //}
-
         }
 
         public virtual void GeneratePossibleMove()
@@ -39,21 +38,57 @@ namespace ChessGame.Models.Chess
             return null;
         }
 
-        public virtual int getValue(Color color)
+        public virtual int GetValue(Color color)
         {
             return 0;
+        }
+
+        public virtual int GetValue(Color color, int baseValue, int[][] boardValue, int[][] boardValueReverse)
+        {
+            var direction = square.board.direction;
+            var extraValue = 0;
+            if (direction == Direction.WhiteGoUp && color == Color.White ||
+                direction == Direction.WhiteGoDown && color == Color.Black)
+            {
+                extraValue = boardValue[square.coord.row][square.coord.col];
+            }
+            else
+            {
+                extraValue = boardValueReverse[square.coord.row][square.coord.col];
+            }
+
+            var totalValue = baseValue + extraValue;
+
+            return color == this.color ? totalValue : -totalValue;
         }
 
         public virtual bool isKing()
         {
             return false;
         }
+
         public Color opponentColor()
         {
             if (this.color == Color.White) return Color.Black;
             else if (this.color == Color.Black) return Color.White;
             else throw new Exception("Color has other value ?");
         }
+
+        public static int[][] Reverse(int[][] A)
+        {
+            int[][] B = new int[8][];
+            for (int i = 0; i < 8; i++)
+            {
+                B[i] = new int[8];
+                for (int j = 0; j < 8; j++)
+                {
+                    B[i][j] = A[7 - i][7 - j];
+                }
+            }
+
+            return B;
+        }
+
         public static Piece GetPiece(string code, Square square)
         {
             switch (code)
@@ -83,6 +118,7 @@ namespace ChessGame.Models.Chess
                 case "whiteP":
                     return new Pawn(Color.White, square);
             }
+
             return null;
         }
     }

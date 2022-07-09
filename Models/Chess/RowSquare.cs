@@ -13,9 +13,9 @@ namespace ChessGame.Models.Chess
             set => squares[i] = value;
         }
 
-        public int getValue(Color color)
+        public int GetValue(Color color)
         {
-            return squares.Sum(square => square.piece?.getValue(color) ?? 0);
+            return squares.Sum(square => square.piece?.GetValue(color) ?? 0);
         }
 
         public override string ToString()

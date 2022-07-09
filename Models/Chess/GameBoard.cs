@@ -18,7 +18,7 @@ namespace ChessGame.Models.Chess
 
         public int getTotalValue(Color color)
         {
-            return squares.Sum(rowSquares => rowSquares.getValue(color));
+            return squares.Sum(rowSquares => rowSquares.GetValue(color));
         }
 
         public const int Size = 8;

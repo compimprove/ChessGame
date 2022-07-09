@@ -17,7 +17,7 @@ namespace ChessGame.Models.Chess.piece
             return this.possibleMoves;
         }
         
-        public override int getValue(Color color)
+        public override int GetValue(Color color)
         {
             return color == this.color ? BaseValue : -BaseValue;
         }

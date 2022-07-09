@@ -36,8 +36,8 @@ namespace ChessGame.Models.Chess
 
     public enum Direction
     {
-        WhiteGoup,
-        WhiteGodown
+        WhiteGoUp,
+        WhiteGoDown
     }
 
     public static class MyEnumExtensions

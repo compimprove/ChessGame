@@ -101,8 +101,8 @@ namespace ChessGame.Signal
         public async Task MovingPiece(BoardRequest request)
         {
             Direction direction = request.direction.ToLower() == "whitegodown"
-                ? Direction.WhiteGodown
-                : Direction.WhiteGoup;
+                ? Direction.WhiteGoDown
+                : Direction.WhiteGoUp;
             GameBoard gameBoard = GameBoard.GetBoard(request.board, direction);
 
             Piece piece = gameBoard.GetSquare(request.coordChosen).piece;
@@ -202,7 +202,7 @@ namespace ChessGame.Signal
         //}
         //public async Task GeneratePossibleMove(BoardRequest request)
         //{
-        //    Direction direction = request.direction.ToLower() == "whitegodown" ? Direction.WhiteGodown : Direction.WhiteGoup;
+        //    Direction direction = request.direction.ToLower() == "whitegodown" ? Direction.WhiteGoDown : Direction.WhiteGoUp;
         //    GameBoard board = GameBoard.GetBoard(request.board, direction);
 
         //    Piece piece = board.GetSquare(request.coordClick).piece;
@@ -211,7 +211,7 @@ namespace ChessGame.Signal
 
         //public async Task Move(BoardRequest request)
         //{
-        //    Direction direction = request.direction.ToLower() == "whitegodown" ? Direction.WhiteGodown : Direction.WhiteGoup;
+        //    Direction direction = request.direction.ToLower() == "whitegodown" ? Direction.WhiteGoDown : Direction.WhiteGoUp;
         //    GameBoard board = GameBoard.GetBoard(request.board, direction);
 
         //    Piece piece = board.GetSquare(request.coordChosen).piece;
