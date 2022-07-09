@@ -12,7 +12,7 @@ namespace ChessGame.Service
 {
     public class BotHandler : IBotHandler
     {
-        private const int MaxDept = 3;
+        private const int MaxDept = 5;
         private readonly IHubContext<GameHub> _hubContext;
         private readonly ILogger _logger;
         private long _loop = 0;
@@ -73,6 +73,8 @@ namespace ChessGame.Service
                 }
             }
 
+            var logMessage = $"Best Value: {string.Join(" ", _bestValues.Select((v, i) => $" {i}:{v} ").ToArray())}";
+            _logger.LogInformation(logMessage);
             if (results.Count == 0) return results[0];
             return results[new Random().Next(results.Count)];
         }
@@ -84,8 +86,8 @@ namespace ChessGame.Service
             var allPieces = botTurn
                 ? gameBoard.getColorPieces(botColor)
                 : gameBoard.getOpponentPieces(botColor);
-            var bestValue = botTurn ? int.MinValue : int.MaxValue;
-
+            _bestValues[dept] = botTurn ? int.MinValue : int.MaxValue;
+            var willBreak = false;
             _logger.LogTrace($"Dept: {dept} -------------");
             foreach (var piece in allPieces)
             {
@@ -95,19 +97,32 @@ namespace ChessGame.Service
                 foreach (var possibleMove in possibleMoves)
                 {
                     gameBoard.MovePiece(piece.square.coord, possibleMove);
-                    var currentValue = GetValue(gameBoard, dept + 1, !botTurn, botColor);
-                    if (botTurn && currentValue > bestValue || !botTurn && currentValue < bestValue)
+                    var calculatedValue = GetValue(gameBoard, dept + 1, !botTurn, botColor);
+                    if (botTurn && calculatedValue > _bestValues[dept - 1])
                     {
-                        bestValue = currentValue;
+                        willBreak = true;
+                    }
+                    else if (!botTurn && calculatedValue < _bestValues[dept - 1])
+                    {
+                        willBreak = true;
+                    }
+
+                    if (botTurn && calculatedValue > _bestValues[dept] ||
+                        !botTurn && calculatedValue < _bestValues[dept])
+                    {
+                        _bestValues[dept] = calculatedValue;
                     }
 
                     gameBoard.undo();
+                    if (willBreak) break;
                 }
+
+                if (willBreak) break;
             }
 
-            _logger.LogTrace($"{bestValue}-----------------------");
+            _logger.LogTrace($"{_bestValues[dept]}-----------------------");
 
-            return bestValue;
+            return _bestValues[dept];
         }
 
         public async Task HandleMove(GameBoard gameBoard, Board board)
