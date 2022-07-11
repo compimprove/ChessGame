@@ -6,257 +6,328 @@ $primary1: #153D07;
 $secondary2: #F6F669;
 $secondary3: #EEEED2;
 $accent3: #FFC887;
+$accent2: #F96714;
+$accent1: #742A00;
 $font1: "Fresh Fruit";
 $font2: 'Lato', sans-serif;
 $h3-size: 1.17rem;
 
 @media only screen and (min-width: 769px) {
-    .view-port-max-height {
-        height: 100vh;
-    }
+  .view-port-max-height {
+    height: 100vh;
+  }
 }
 
 @media only screen and (max-width: 768px) {
-    .view-port-max-height {
-        height: 85vh;
-    }
+  .view-port-max-height {
+    height: 85vh;
+  }
 }
 
 p,
 span,
 div {
-    font-family: $font2;
+  font-family: $font2;
 }
 
 body {
-    margin: 0px;
-    background-color: $primary1;
+  margin: 0px;
+  background-color: $primary1;
 }
 
 .container {
-    @extend .view-port-max-height;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  @extend .view-port-max-height;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 div.welcome-container {
-    @extend .view-port-max-height;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  @extend .view-port-max-height;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 h1.welcome-text {
-    font-size: 3.8em;
-    color: $secondary2;
-    font-family: $font1;
-    align-self: center;
-    text-align: center;
+  color: $secondary2;
+  font-size: 3.8em;
+  font-family: $font1;
+  align-self: center;
+  text-align: center;
 }
 
+
 div.type-to-start {
-    align-self: center;
+  align-self: center;
+  font-size: $h3-size;
+  color: $secondary2;
+  font-family: $font2;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+
+  > input {
+    box-sizing: border-box;
+    padding: 20px 20px;
+    outline: none;
+    margin: 2px 10px 0px 10px;
+    height: 2.6em;
+    width: 150px;
+    border-radius: 15px;
+    border: 1px solid $secondary3;
+    background-color: $primary1;
+    cursor: pointer;
     font-size: $h3-size;
-    color: $secondary2;
     font-family: $font2;
-    font-weight: normal;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
+    color: $secondary3;
+  }
 
-    >input {
-        box-sizing: border-box;
-        padding: 20px 20px;
-        outline: none;
-        margin: 2px 10px 0px 10px;
-        height: 2.6em;
-        width: 150px;
-        border-radius: 15px;
-        border: 1px solid $secondary3;
-        background-color: $primary1;
-        cursor: pointer;
-        font-size: $h3-size;
-        font-family: $font2;
-        color: $secondary3;
-    }
-
-    >input::placeholder {
-        font-size: $h3-size;
-        font-family: $font2;
-        color: $secondary3;
-    }
+  > input::placeholder {
+    font-size: $h3-size;
+    font-family: $font2;
+    color: $secondary3;
+  }
 }
 
 p.chose-board {
-    margin-top: 0;
-    font-size: $h3-size;
-    color: $secondary3;
-    align-self: center;
-    font-family: $font2;
+  margin-top: 0;
+  font-size: $h3-size;
+  color: $secondary3;
+  align-self: center;
+  font-family: $font2;
+}
+
+button.big-button {
+  cursor: pointer;
+  border-radius: 15px;
+  align-self: center;
+  width: fit-content;
+  padding: 15px 115px;
+  font-size: $h3-size;
+  font-family: $font2;
+  background-color: transparent;
 }
 
 button.play-button {
-    cursor: pointer;
-    border-radius: 15px;
-    align-self: center;
-    width: fit-content;
-    padding: 15px 115px;
-    font-size: $h3-size;
-    font-family: $font2;
-    color: $primary1;
-    background-color: $secondary2;
-    margin: 2em 0px;
+  @extend button.big-button;
+  margin: 2em 0px;
+  background-color: $secondary2;
+  color: $primary1;
+}
+
+button.play-button-lose {
+  @extend button.big-button;
+  color: $secondary3;
+  border: 1px solid $secondary3;
+  max-width: 330px;
+}
+
+button.play-button-lose-1 {
+  @extend button.big-button;
+  color: $primary1;
+  border: 1px solid $primary1;
+  max-width: 330px;
+}
+
+button.play-button-win {
+  @extend button.big-button;
+  color: $accent2;
+  max-width: 330px;
+  border: 1px solid $accent2;
 }
 
 .board {
-    width: 98vw;
-    max-width: $board-max-size;
-    max-height: $board-max-size;
-    height: 98vw;
-    display: grid;
-    grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
-    grid-template-rows: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
-    grid-gap: 0px;
+  width: 98vw;
+  max-width: $board-max-size;
+  max-height: $board-max-size;
+  height: 98vw;
+  display: grid;
+  grid-template-columns: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
+  grid-template-rows: 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5% 12.5%;
+  grid-gap: 0px;
 }
 
 .side-inboard {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 button.square {
-    padding: 0;
-    margin: 0;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  box-sizing: border-box;
+  border-width: 0px;
+
+  &:focus {
     outline: none;
-    box-sizing: border-box;
-    border-width: 0px;
+    background-color: $highlightColor;
+  }
 
-    &:focus {
-        outline: none;
-        background-color: $highlightColor;
-    }
-
-    >img {
-        cursor: pointer;
-        transition: all 0.4s ease-in-out;
-        width: 100%;
-        vertical-align: middle;
-    }
+  > img {
+    cursor: pointer;
+    transition: all 0.4s ease-in-out;
+    width: 100%;
+    vertical-align: middle;
+  }
 }
 
 button.white {
-    background-color: #EEEED2;
+  background-color: #EEEED2;
 }
 
 button.black {
-    background-color: #769656;
+  background-color: #769656;
 }
 
 button.highlight {
-    cursor: pointer;
-    border: 4px solid #1A4B09;
+  cursor: pointer;
+  border: 4px solid #1A4B09;
 }
 
 button.canKilled {
-    background-color: #F96714;
-    border: 5px solid #1A4B09;
+  background-color: $accent2;
+  border: 5px solid #1A4B09;
 }
 
 button.inDangered {
-    background-color: #be1512 !important;
-    border: 5px solid #1A4B09;
+  background-color: $accent1 !important;
+  border: 4px solid #1A4B09;
 }
 
 div.list-board {
-    margin-top: 0.67em;
-    max-width: 500px;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-self: center;
+  margin-top: 0.67em;
+  max-width: 500px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-self: center;
 }
 
 .cell-board {
-    margin: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid $secondary3;
-    border-radius: 15px;
-    width: 110px;
-    height: 110px;
-    box-sizing: border-box;
-    background-color: $primary1;
-    text-align: center;
+  margin: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $secondary3;
+  border-radius: 15px;
+  width: 110px;
+  height: 110px;
+  box-sizing: border-box;
+  background-color: $primary1;
+  text-align: center;
+  cursor: pointer;
+
+  > label {
     cursor: pointer;
+    font-family: $font2;
+    font-size: 1em;
+    color: $secondary3;
+  }
 
-    >label {
-        cursor: pointer;
-        font-family: $font2;
-        font-size: 1em;
-        color: $secondary3;
+  &:hover {
+    background-color: $secondary3;
+
+    > label {
+      color: $primary1;
     }
-
-    &:hover {
-        background-color: $secondary3;
-
-        >label {
-            color: $primary1;
-        }
-    }
+  }
 }
 
 .create-board {
-    @extend .cell-board;
+  @extend .cell-board;
 
-    >svg {
-        width: 30%;
-        height: 30%;
-        fill: $secondary2;
-    }
+  > svg {
+    width: 30%;
+    height: 30%;
+    fill: $secondary2;
+  }
 
-    >label {
-        width: 92px;
-    }
+  > label {
+    width: 92px;
+  }
 
-    &:hover {
-        >svg {
-            fill: $primary1;
-        }
+  &:hover {
+    > svg {
+      fill: $primary1;
     }
+  }
 }
 
 .create-bot-board {
-    @extend .cell-board;
-    >label {
-        font-weight: bold;
-        color: $secondary2;
-        width: 82px;
-    }
+  @extend .cell-board;
+
+  > label {
+    font-weight: bold;
+    color: $secondary2;
+    width: 82px;
+  }
 }
 
 .user-normal {
-    width: 98vw;
-    margin: 15px 0px;
-    max-width: $board-max-size;
-    display: flex;
-    align-items: flex-start;
+  flex: 1;
+  width: 98vw;
+  margin: 15px 0px;
+  max-width: $board-max-size;
+  display: flex;
+  align-items: flex-start;
 
-    >svg {
-        fill: $secondary3;
-        margin-right: 10px;
-        width: 3.8em;
+  > svg {
+    fill: $secondary3;
+    margin-right: 10px;
+    width: 3.8em;
+  }
+
+  > img {
+    width: 3.8em;
+  }
+
+  > span {
+    color: $accent3;
+    font-size: $h3-size;
+  }
+}
+
+.popup-box {
+  position: fixed;
+  background: #00000050;
+  width: 100%;
+  height: 100vh;
+  top: 0;
+  left: 0;
+
+  > .win {
+    position: relative;
+    width: $board-max-size;
+    height: auto;
+    max-height: 70vh;
+    margin: calc(100vh - 70vh - 20px) auto 0;
+    background: $secondary3;
+    border-radius: 20px;
+    padding: 20px;
+    overflow: auto;
+
+    > h1 {
+      font-size: 3.8em;
     }
 
-    >img {
-        width: 3.8em;
-    }
+    font-family: $font1;
+    color: $accent2;
+    text-align: center;
+  }
 
-    >span {
-        color: $accent3;
-        font-size: $h3-size;
-    }
+  > .lose {
+    @extend .win;
+    color: $primary1;
+  }
+}
+
+.board-above-bar {
+  display: flex;
+  width: 98vw;
+  max-width: $board-max-size;
 }

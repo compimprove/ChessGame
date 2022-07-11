@@ -26,19 +26,19 @@ namespace ChessGame.Controllers
     [ApiController]
     public class BoardController : ControllerBase
     {
-        private readonly InMemoryDbContext _context;
-        private readonly IHubContext<GameHub> _hubContext;
-        private readonly IBotHandler _botHandler;
-
-        public BoardController(
-            IBotHandler botHandler,
-            InMemoryDbContext context,
-            IHubContext<GameHub> hubContext)
-        {
-            _botHandler = botHandler;
-            _context = context;
-            _hubContext = hubContext;
-        }
+        // private readonly InMemoryDbContext _context;
+        // private readonly IHubContext<GameHub> _hubContext;
+        // private readonly IBotHandler _botHandler;
+        //
+        // public BoardController(
+        //     IBotHandler botHandler,
+        //     InMemoryDbContext context,
+        //     IHubContext<GameHub> hubContext)
+        // {
+        //     _botHandler = botHandler;
+        //     _context = context;
+        //     _hubContext = hubContext;
+        // }
 
         [HttpPost]
         public ActionResult<Dictionary<string, Coord[]>> GeneratePossibleMove(BoardRequest request)

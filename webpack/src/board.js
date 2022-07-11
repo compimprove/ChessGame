@@ -10,6 +10,8 @@ import SquareC from './squareC';
 import MovingError from './errors/movingError';
 import {User, UserThinking, UserWaiting} from './user';
 import {debounce} from "lodash";
+import WinPopup from "./popup/winPopup";
+import LosePopup from "./popup/losePopup";
 
 class Board extends Component {
   constructor(props) {
@@ -20,12 +22,15 @@ class Board extends Component {
       board: null,
       flag: false,
       userTurn: this.props.userTurn,
-      movingPiece: false
+      movingPiece: false,
+      results: null,
+      popUp: {}
     }
     this.userColor = this.props.userColor
     this.handleSquareClick = debounce(this.handleSquareClick.bind(this), 300);
     this.loadBoard = this.loadBoard.bind(this);
     this.onClickContainer = this.onClickContainer.bind(this);
+    this.handleClosePopup = this.handleClosePopup.bind(this);
     if (this.userColor === "white") {
       this.state.board = InitialBoard.call(this, "white", "black")
     } else if (this.userColor === "black") {
@@ -33,7 +38,6 @@ class Board extends Component {
     } else {
       throw 'UserColor code is wrong';
     }
-
     this.apiGenerateMove = 'api/Board/GeneratePossibleMove';
     this.apiMove = 'api/Board/Move';
     this.cordChosen = null;
@@ -51,11 +55,15 @@ class Board extends Component {
 
   async _moveAllInQueue() {
     if (this.movingQueue.length > 0) {
-      let {userName, coordChosen, coordClick, kingInDangerCoord} = this.movingQueue.shift()
+      let {userName, coordChosen, coordClick, kingInDangerCoord, winnerName} = this.movingQueue.shift()
       this.removeHighlight();
       await this.move(coordChosen, coordClick);
       if (kingInDangerCoord && kingInDangerCoord.length > 0) {
         kingInDangerCoord.forEach(coord => this.danger(coord))
+      }
+      if (winnerName) {
+        let popUp = winnerName === this.props.userName ? {showWin: true} : {showLose: true};
+        this.setState({results: {winnerName}, popUp});
       }
       this.setState({userTurn: userName !== this.props.userName});
       this._moveAllInQueue();
@@ -65,8 +73,8 @@ class Board extends Component {
   }
 
   componentDidMount() {
-    this.props.connection.on("MovingPiece", (userName, coordChosen, coordClick, kingInDangerCoord) => {
-      this.movingQueue.push({userName, coordChosen, coordClick, kingInDangerCoord});
+    this.props.connection.on("MovingPiece", (userName, coordChosen, coordClick, kingInDangerCoord, winnerName) => {
+      this.movingQueue.push({userName, coordChosen, coordClick, kingInDangerCoord, winnerName});
       this.moveInQueue();
     })
   }
@@ -132,6 +140,9 @@ class Board extends Component {
 
   async handleSquareClick(coord, piece) {
     console.log("square click");
+    if (this.state.results) {
+      return;
+    }
     let havePiece = Boolean(piece);
     if (this.state.userTurn) {
       if (havePiece && piece.color == this.userColor) {
@@ -267,17 +278,25 @@ class Board extends Component {
     });
   }
 
+  handleClosePopup() {
+    this.setState({popUp: {}});
+  }
+
   onClickContainer(e) {
     if (e.target === this.boardRef.current) {
       this.removeHighlight();
     }
   }
 
+
   render() {
     let opponent;
     let user;
     if (this.props.opponentName) {
-      if (this.state.userTurn) {
+      if (this.state.results) {
+        opponent = <User name={this.props.opponentName}/>;
+        user = <User name={this.props.userName}/>
+      } else if (this.state.userTurn) {
         opponent = <User name={this.props.opponentName}/>;
         user = <UserThinking name={this.props.userName}/>
       } else {
@@ -290,9 +309,18 @@ class Board extends Component {
     }
     return (
       <div className='container' onClick={this.onClickContainer} ref={this.boardRef}>
-        {opponent}
+        <div className="board-above-bar">
+          {opponent}
+          {this.state.results && this.state.results.winnerName === this.props.userName &&
+            <button onClick={this.props.playAgain} style={{flex: 2}} className='play-button-win'>Play Again</button>
+          }
+          {this.state.results && this.state.results.winnerName !== this.props.userName &&
+            <button onClick={this.props.playAgain} style={{flex: 2}} className='play-button-lose'>Try Again
+            </button>
+          }
+        </div>
         <div className="board">
-          {this.state.board.map((row, index) => (
+          {this.state.board.map((row) => (
             <>
               {row.map((squareC) => (
                 <Square
@@ -307,7 +335,17 @@ class Board extends Component {
             </>
           ))}
         </div>
-        {user}
+        <div>
+          {user}
+        </div>
+        {this.state.popUp.showWin && <WinPopup
+          handleClose={this.handleClosePopup}
+          playAgain={this.props.playAgain}
+        />}
+        {this.state.popUp.showLose && <LosePopup
+          handleClose={this.handleClosePopup}
+          playAgain={this.props.playAgain}
+        />}
       </div>
     )
   }

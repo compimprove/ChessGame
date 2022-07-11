@@ -21,7 +21,7 @@ class Main extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      userBoard: '',
+      userBoard: null,
       userName: '',
       boards: '',
       mode: UserState.TypeName,
@@ -29,6 +29,7 @@ class Main extends Component {
       connection: null,
       userTurn: false,
     }
+    this.playAgain = this.playAgain.bind(this);
     this.handleCreateBotBoard = this.handleCreateBotBoard.bind(this);
     this.handleNameChange = this.handleNameChange.bind(this);
     this.handleCreateBoard = this.handleCreateBoard.bind(this);
@@ -65,17 +66,21 @@ class Main extends Component {
     connection.on("JoinedBoard", (board, userTurn) => {
       this.setState({mode: UserState.Playing, userBoard: board, userTurn: userTurn})
     })
+    connection.on("LeaveBoard", (boardId) => {
+      this.setState({userBoard: null, mode: UserState.ChooseBoard})
+    })
     this.setState({connection})
     this.setupBeforeUnloadListener();
   }
 
-  setupInBoardHandle() {
-    let connection = this.state.connection;
+  playAgain() {
+    this.state.connection.invoke("LeaveBoard", this.state.userBoard.id);
+    this.state.connection.invoke("GetBoards");
   }
 
   setupBeforeUnloadListener() {
     window.addEventListener("beforeunload", (ev) => {
-      this.state.connection.invoke("Disconnect", this.state.userBoard.id);
+      this.state.connection.invoke("Disconnect", this.state.userBoard && this.state.userBoard.id);
     });
   };
 
@@ -157,6 +162,7 @@ class Main extends Component {
       }
       return (
         <Board
+          playAgain={this.playAgain}
           opponentName={opponentName}
           userName={this.state.userName}
           userTurn={this.state.userTurn}

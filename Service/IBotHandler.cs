@@ -6,6 +6,6 @@ namespace ChessGame.Service
 {
     public interface IBotHandler
     {
-        public Task HandleMove(GameBoard gameBoard, Board board);
+        public Task HandleMove(GameBoard gameBoard);
     }
 }

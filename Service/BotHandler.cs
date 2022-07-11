@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ChessGame.Models;
 using ChessGame.Models.Chess;
 using ChessGame.Signal;
+using ChessGame.Utils;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +13,7 @@ namespace ChessGame.Service
 {
     public class BotHandler : IBotHandler
     {
-        private const int MaxDept = 5;
+        private const int MaxDept = 1;
         private readonly IHubContext<GameHub> _hubContext;
         private readonly ILogger _logger;
         private long _loop = 0;
@@ -34,6 +35,16 @@ namespace ChessGame.Service
         private string getUserIdentifier(Board board)
         {
             return board.User1Identifier == "bot" ? board.User2Identifier : board.User1Identifier;
+        }
+
+        private string getUserName(Board board)
+        {
+            return board.User1Identifier == "bot" ? board.User2Name : board.User1Name;
+        }
+
+        private Color getUserColor(Board board)
+        {
+            return board.User1Identifier == "bot" ? board.User2Color : board.User1Color;
         }
 
         private (Coord, Coord) Process(GameBoard gameBoard, Board board)
@@ -68,7 +79,7 @@ namespace ChessGame.Service
                         results.Add((pieceOriginCoord, possibleMove));
                     }
 
-                    gameBoard.undo();
+                    gameBoard.Undo();
                     _logger.LogTrace($"------------------------------------------");
                 }
             }
@@ -113,7 +124,7 @@ namespace ChessGame.Service
                         _bestValues[dept] = calculatedValue;
                     }
 
-                    gameBoard.undo();
+                    gameBoard.Undo();
                     if (willBreak) break;
                 }
 
@@ -125,19 +136,20 @@ namespace ChessGame.Service
             return _bestValues[dept];
         }
 
-        public async Task HandleMove(GameBoard gameBoard, Board board)
+        public async Task HandleMove(GameBoard gameBoard)
         {
             try
             {
                 await Task.Delay(100);
                 _logger.LogInformation("Input-----------------------\n{board}", gameBoard.ToString());
                 var start = DateTime.Now;
+                var board = gameBoard.boardInfo;
                 var (coordChosen, coordMoveTo) = Process(gameBoard, board);
                 gameBoard.MovePiece(coordChosen, coordMoveTo);
                 var end = DateTime.Now;
                 _logger.LogInformation("Loop: {loop}-Time: {time}---\n{board}", _loop, (end - start).ToString(),
                     gameBoard.ToString());
-                MovePiece(gameBoard, board, coordChosen, coordMoveTo);
+                await MovePiece(gameBoard, board, coordChosen, coordMoveTo).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -145,22 +157,19 @@ namespace ChessGame.Service
             }
         }
 
-        private void MovePiece(GameBoard gameBoard, Board board, Coord coordFrom, Coord coordTo)
+        private async Task MovePiece(GameBoard gameBoard, Board board, Coord coordFrom, Coord coordTo)
         {
-            var kingDangerMove = new List<Coord>();
+            var kingDangerMove = BoardUtils.GetKingDangerMoves(gameBoard);
+            var winner = BoardUtils.GetWinnerName(gameBoard);
 
-            if (gameBoard.blackKing.InDanger())
-            {
-                kingDangerMove.Add(gameBoard.blackKing.Coord);
-            }
-
-            if (gameBoard.whiteKing.InDanger())
-            {
-                kingDangerMove.Add(gameBoard.whiteKing.Coord);
-            }
-
-            _hubContext.Clients.Client(getUserIdentifier(board))
-                .SendAsync("MovingPiece", "bot", coordFrom, coordTo, kingDangerMove);
+            await _hubContext.Clients.Client(getUserIdentifier(board))
+                .SendAsync(
+                    "MovingPiece",
+                    "bot",
+                    coordFrom,
+                    coordTo,
+                    kingDangerMove,
+                    winner).ConfigureAwait(false);
         }
     }
 }

@@ -7,6 +7,8 @@ namespace ChessGame.Models.Chess
         public Piece piece { get; private set; } = null;
         public Coord coord { get; }
         public GameBoard board { get; }
+        
+        public Square(){}
 
         public Square(string pieceCode, Coord coord, GameBoard board)
         {

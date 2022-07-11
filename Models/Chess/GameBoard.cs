@@ -8,10 +8,10 @@ namespace ChessGame.Models.Chess
     public class GameBoard
     {
         private RowSquare[] boardSquares { get; set; }
-        public King whiteKing { get; private set; }
-        public King blackKing { get; private set; }
+        public King whiteKing { get; set; }
+        public King blackKing { get; set; }
 
-        public Direction direction { get; private set; }
+        public Direction direction { get; set; }
 
         public Board boardInfo { get; set; }
 
@@ -108,12 +108,18 @@ namespace ChessGame.Models.Chess
             return pieces;
         }
 
+        public bool IsKingLive(Color color)
+        {
+            if (color == Color.Black) return blackKing?.square != null;
+            return whiteKing?.square != null;
+        }
+
         public override string ToString()
         {
             return string.Join("\n", boardSquares.Select(squares => squares));
         }
 
-        public void undo()
+        public void Undo()
         {
             try
             {
