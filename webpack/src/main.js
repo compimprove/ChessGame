@@ -86,7 +86,7 @@ class Main extends Component {
 
   handleNameChange(e) {
     this.setState({
-      userName: e.target.value.toUpperCase(),
+      userName: e.target.value + "",
     })
   }
 

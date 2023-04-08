@@ -13,7 +13,7 @@ namespace ChessGame.Service
 {
     public class BotHandler : IBotHandler
     {
-        private const int MaxDept = 5;
+        private const int MaxDept = 4;
         private readonly IHubContext<GameHub> _hubContext;
         private readonly ILogger _logger;
         private long _loop = 0;
